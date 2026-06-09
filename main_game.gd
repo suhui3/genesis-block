@@ -51,6 +51,7 @@ var quiz_blocking_input: bool = false
 # VISUAL COMPONENT NODE LINK REFERENCES
 # ==========================================
 @onready var splash_screen = $SplashScreen
+@onready var button_continue = $SplashScreen/ButtonContinue
 @onready var button_start = $SplashScreen/ButtonStart
 @onready var gameplay_container = $GameplayVBox
 @onready var button_learn = $GameplayVBox/HBoxToolbar/ButtonLearn
@@ -86,7 +87,7 @@ func _ready():
 	quiz_panel.visible = false
 	load_game()
 	_populate_glossary()
-	_update_splash_button()
+	_update_splash_buttons()
 	splash_screen.visible = true
 	gameplay_container.visible = false
 
@@ -94,15 +95,49 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		save_game()
 
-func _update_splash_button() -> void:
-	button_start.text = "CONTINUE" if _has_save and game_started else "START GAME"
+func _update_splash_buttons() -> void:
+	button_continue.visible = _has_save and game_started
 
-func _on_start_button_pressed():
-	if game_started:
-		_enter_gameplay(true)
-		return
+func _on_continue_button_pressed() -> void:
+	_enter_gameplay(true)
+
+func _on_start_button_pressed() -> void:
+	reset_game()
 	game_started = true
 	_enter_gameplay(true)
+
+func reset_game() -> void:
+	gas_units = 0.0
+	gas_per_click = 1.0
+	gas_per_second = 0.0
+	cost_contract = 15.0
+	count_contract = 0
+	cost_pool = 100.0
+	count_pool = 0
+	cost_dao = 1000.0
+	count_dao = 0
+	block_count = 0
+	block_chain = []
+	concepts_unlocked = {
+		"gas": false,
+		"genesis_block": false,
+		"smart_contract": false,
+		"liquidity_pool": false,
+		"dao": false,
+	}
+	quiz_passed = {
+		"contract": false,
+		"pool": false,
+		"dao": false,
+	}
+	active_quiz_tier = ""
+	quiz_blocking_input = false
+	game_started = false
+	_last_visualized_block_count = -1
+	if game_timer:
+		game_timer.stop()
+		game_timer.queue_free()
+		game_timer = null
 
 func _enter_gameplay(from_splash: bool) -> void:
 	splash_screen.visible = false
