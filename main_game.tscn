@@ -1,0 +1,82 @@
+[gd_scene format=3 uid="uid://bm8hvxl2rtn20"]
+
+[ext_resource type="Script" uid="uid://bjwh3skpc562l" path="res://main_game.gd" id="1_1oj5k"]
+
+[node name="MainGame" type="Control" unique_id=788206435]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_1oj5k")
+
+[node name="SplashScreen" type="VBoxContainer" parent="." unique_id=1010101010]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 24
+alignment = 1
+
+[node name="LabelTitle" type="Label" parent="SplashScreen" unique_id=2098856288]
+layout_mode = 2
+text = "GENESIS BLOCK"
+horizontal_alignment = 1
+
+[node name="LabelCredentials" type="Label" parent="SplashScreen" unique_id=20869700]
+layout_mode = 2
+text = "Name: SU HUI SAN
+Matric No: 23005010"
+horizontal_alignment = 1
+
+[node name="ButtonStart" type="Button" parent="SplashScreen" unique_id=3030303030]
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "START GAME"
+
+[node name="GameplayVBox" type="VBoxContainer" parent="." unique_id=2020202020]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="LabelCurrency" type="Label" parent="GameplayVBox" unique_id=383738208]
+layout_mode = 2
+text = "Wallet Balance: 0 Gas Units"
+
+[node name="ButtonClicker" type="Button" parent="GameplayVBox" unique_id=200621185]
+custom_minimum_size = Vector2(0, 200)
+layout_mode = 2
+text = "WRITE CODE BLOCK"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="GameplayVBox" unique_id=1686406097]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="UpgradeListContainer" type="VBoxContainer" parent="GameplayVBox/ScrollContainer" unique_id=1304642632]
+layout_mode = 2
+
+[node name="ButtonUpgradeContract" type="Button" parent="GameplayVBox/ScrollContainer/UpgradeListContainer" unique_id=1268817527]
+layout_mode = 2
+text = "Deploy Smart Contract"
+
+[node name="ButtonUpgradePool" type="Button" parent="GameplayVBox/ScrollContainer/UpgradeListContainer" unique_id=496229236]
+layout_mode = 2
+text = "Setup Liquidity Pool"
+
+[node name="ButtonUpgradeDao" type="Button" parent="GameplayVBox/ScrollContainer/UpgradeListContainer" unique_id=449266112]
+layout_mode = 2
+text = "Establish DAO Governance"
+
+[connection signal="pressed" from="SplashScreen/ButtonStart" to="." method="_on_start_button_pressed"]
+[connection signal="pressed" from="GameplayVBox/ButtonClicker" to="." method="_on_clicker_button_pressed"]
+[connection signal="pressed" from="GameplayVBox/ScrollContainer/UpgradeListContainer/ButtonUpgradeContract" to="." method="_on_button_upgrade_contract_pressed"]
+[connection signal="pressed" from="GameplayVBox/ScrollContainer/UpgradeListContainer/ButtonUpgradePool" to="." method="_on_button_upgrade_pool_pressed"]
+[connection signal="pressed" from="GameplayVBox/ScrollContainer/UpgradeListContainer/ButtonUpgradeDao" to="." method="_on_button_upgrade_dao_pressed"]
