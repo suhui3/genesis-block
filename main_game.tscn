@@ -39,12 +39,39 @@ size_flags_horizontal = 4
 text = "START GAME"
 
 [node name="GameplayVBox" type="VBoxContainer" parent="." unique_id=2020202020]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="HBoxToolbar" type="HBoxContainer" parent="GameplayVBox" unique_id=-254563256]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="ButtonLearn" type="Button" parent="GameplayVBox/HBoxToolbar" unique_id=-153553155]
+custom_minimum_size = Vector2(100, 48)
+layout_mode = 2
+text = "LEARN"
+
+[node name="LabelJournal" type="Label" parent="GameplayVBox/HBoxToolbar" unique_id=-52543054]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Learned: Gas ○ | Genesis ○ | Contract ○ | Pool ○ | DAO ○"
+autowrap_mode = 2
+
+[node name="BlockChainScroll" type="ScrollContainer" parent="GameplayVBox" unique_id=48467047]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+horizontal_scroll_mode = 2
+vertical_scroll_mode = 0
+
+[node name="BlockChainRow" type="HBoxContainer" parent="GameplayVBox/BlockChainScroll" unique_id=149477148]
+layout_mode = 2
+theme_override_constants/separation = 8
 
 [node name="LabelCurrency" type="Label" parent="GameplayVBox" unique_id=383738208]
 layout_mode = 2
@@ -74,8 +101,91 @@ text = "Setup Liquidity Pool"
 layout_mode = 2
 text = "Establish DAO Governance"
 
+[node name="LearnPanel" type="PanelContainer" parent="." unique_id=755537754]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="LearnPanel" unique_id=856547855]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="LabelLearnTitle" type="Label" parent="LearnPanel/VBoxContainer" unique_id=957557956]
+layout_mode = 2
+text = "GLOSSARY"
+horizontal_alignment = 1
+
+[node name="ScrollContainer" type="ScrollContainer" parent="LearnPanel/VBoxContainer" unique_id=1058568057]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="GlossaryLabel" type="RichTextLabel" parent="LearnPanel/VBoxContainer/ScrollContainer" unique_id=1159578158]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+fit_content = true
+scroll_active = false
+
+[node name="ButtonLearnBack" type="Button" parent="LearnPanel/VBoxContainer" unique_id=1260588259]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "BACK"
+
+[node name="QuizPanel" type="PanelContainer" parent="." unique_id=1765638764]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="QuizPanel" unique_id=1866648865]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="LabelQuizTitle" type="Label" parent="QuizPanel/VBoxContainer" unique_id=1967658966]
+layout_mode = 2
+text = "Assessment"
+horizontal_alignment = 1
+
+[node name="LabelQuizQuestion" type="Label" parent="QuizPanel/VBoxContainer" unique_id=2068669067]
+custom_minimum_size = Vector2(720, 0)
+layout_mode = 2
+text = "Question?"
+autowrap_mode = 3
+
+[node name="ButtonQuizOption0" type="Button" parent="QuizPanel/VBoxContainer" unique_id=-2125288128]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "Option A"
+
+[node name="ButtonQuizOption1" type="Button" parent="QuizPanel/VBoxContainer" unique_id=-2024278027]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "Option B"
+
+[node name="ButtonQuizOption2" type="Button" parent="QuizPanel/VBoxContainer" unique_id=-1923267926]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "Option C"
+
+[node name="LabelQuizFeedback" type="Label" parent="QuizPanel/VBoxContainer" unique_id=-1822257825]
+custom_minimum_size = Vector2(720, 0)
+layout_mode = 2
+autowrap_mode = 3
+
 [connection signal="pressed" from="SplashScreen/ButtonStart" to="." method="_on_start_button_pressed"]
+[connection signal="pressed" from="GameplayVBox/HBoxToolbar/ButtonLearn" to="." method="_on_learn_button_pressed"]
 [connection signal="pressed" from="GameplayVBox/ButtonClicker" to="." method="_on_clicker_button_pressed"]
 [connection signal="pressed" from="GameplayVBox/ScrollContainer/UpgradeListContainer/ButtonUpgradeContract" to="." method="_on_button_upgrade_contract_pressed"]
 [connection signal="pressed" from="GameplayVBox/ScrollContainer/UpgradeListContainer/ButtonUpgradePool" to="." method="_on_button_upgrade_pool_pressed"]
 [connection signal="pressed" from="GameplayVBox/ScrollContainer/UpgradeListContainer/ButtonUpgradeDao" to="." method="_on_button_upgrade_dao_pressed"]
+[connection signal="pressed" from="LearnPanel/VBoxContainer/ButtonLearnBack" to="." method="_on_learn_back_pressed"]
+[connection signal="pressed" from="QuizPanel/VBoxContainer/ButtonQuizOption0" to="." method="_on_quiz_option_0_pressed"]
+[connection signal="pressed" from="QuizPanel/VBoxContainer/ButtonQuizOption1" to="." method="_on_quiz_option_1_pressed"]
+[connection signal="pressed" from="QuizPanel/VBoxContainer/ButtonQuizOption2" to="." method="_on_quiz_option_2_pressed"]
