@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://d0hxm7ya23nxl"]
+
+[ext_resource type="Script" uid="uid://cvwqb4imxateu" path="res://ui/components/bottom_nav_bar.gd" id="1_script"]
+
+[node name="BottomNavBar" type="PanelContainer" unique_id=1480028993]
+custom_minimum_size = Vector2(0, 72)
+script = ExtResource("1_script")
+
+[node name="TabsRow" type="HBoxContainer" parent="." unique_id=1136337929]
+layout_mode = 2
+size_flags_vertical = 3

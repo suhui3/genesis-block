@@ -1,9 +1,21 @@
-const CONCEPT_LABELS := {
-	"gas": "Gas",
-	"genesis_block": "Genesis",
-	"smart_contract": "Contract",
-	"liquidity_pool": "Pool",
-	"dao": "DAO",
+const QUIZ_ORDER := ["contract", "pool", "dao"]
+
+const UPGRADES := {
+	"contract": {
+		"title": "DEPLOY SMART CONTRACT",
+		"description": "Automates execution logic safely without middleware.",
+		"yield": 1.0,
+	},
+	"pool": {
+		"title": "SETUP LIQUIDITY POOL",
+		"description": "Injects deeper automated capital funding mechanics.",
+		"yield": 8.0,
+	},
+	"dao": {
+		"title": "ESTABLISH DAO GOVERNANCE",
+		"description": "Unlocks native decentralized stakeholder vote weighting.",
+		"yield": 50.0,
+	},
 }
 
 const GLOSSARY := {
@@ -54,6 +66,10 @@ const QUIZZES := {
 		"concept": "dao",
 	},
 }
+
+static func get_prereq_tier(tier: String) -> String:
+	var idx := QUIZ_ORDER.find(tier)
+	return "" if idx <= 0 else QUIZ_ORDER[idx - 1]
 
 static func build_glossary_bbcode() -> String:
 	var parts: PackedStringArray = []

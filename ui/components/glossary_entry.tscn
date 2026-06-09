@@ -1,0 +1,19 @@
+[gd_scene load_steps=2 format=3 uid="uid://cyber_glossary_entry"]
+
+[ext_resource type="Script" path="res://ui/components/glossary_entry.gd" id="1_script"]
+
+[node name="GlossaryEntry" type="VBoxContainer"]
+theme_override_constants/separation = 6
+script = ExtResource("1_script")
+
+[node name="TermLabel" type="Label" parent="."]
+layout_mode = 2
+text = "TERM"
+
+[node name="DefinitionLabel" type="Label" parent="."]
+layout_mode = 2
+autowrap_mode = 3
+text = "Definition"
+
+[node name="Divider" type="ColorRect" parent="."]
+layout_mode = 2

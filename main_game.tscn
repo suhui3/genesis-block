@@ -1,8 +1,22 @@
 [gd_scene format=3 uid="uid://bm8hvxl2rtn20"]
 
 [ext_resource type="Script" uid="uid://bjwh3skpc562l" path="res://main_game.gd" id="1_1oj5k"]
+[ext_resource type="Texture2D" uid="uid://bee7pga0uecuw" path="res://ui/textures/splash_frame.png" id="2_splash"]
+[ext_resource type="PackedScene" path="res://ui/components/cyber_texture_button.tscn" id="3_cyber_btn"]
+[ext_resource type="Texture2D" uid="uid://jaf0lol4e76h" path="res://ui/textures/buttons/continue_normal.png" id="4_continue_normal"]
+[ext_resource type="Texture2D" uid="uid://bbm3i88sky703" path="res://ui/textures/buttons/continue_pressed.png" id="5_continue_pressed"]
+[ext_resource type="Texture2D" uid="uid://bucc5km27y2cf" path="res://ui/textures/buttons/start_normal.png" id="6_start_normal"]
+[ext_resource type="Texture2D" uid="uid://cw7wu1v6757ci" path="res://ui/textures/buttons/start_pressed.png" id="7_start_pressed"]
+[ext_resource type="PackedScene" path="res://ui/components/screen_header.tscn" id="8_header"]
+[ext_resource type="PackedScene" uid="uid://dvqon57djvkly" path="res://ui/components/gas_bar.tscn" id="9_gas"]
+[ext_resource type="PackedScene" uid="uid://d0hxm7ya23nxl" path="res://ui/components/bottom_nav_bar.tscn" id="10_nav"]
+[ext_resource type="PackedScene" path="res://ui/components/assessment_card.tscn" id="11_assessment"]
+[ext_resource type="PackedScene" path="res://ui/components/market_upgrade_card.tscn" id="11_card"]
+[ext_resource type="PackedScene" path="res://ui/components/segmented_tab_bar.tscn" id="11_subnav"]
+[ext_resource type="Texture2D" uid="uid://bn2fv38pcyheu" path="res://ui/textures/assets/quiz_host.png" id="12_krmtw"]
+[ext_resource type="PackedScene" path="res://ui/components/quiz_option_button.tscn" id="12_quiz_opt"]
 
-[node name="MainGame" type="Control" unique_id=788206435]
+[node name="MainGame" type="Control" unique_id=2111286446]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -11,41 +25,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_1oj5k")
 
-[node name="SplashScreen" type="VBoxContainer" parent="." unique_id=1010101010]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/separation = 24
-alignment = 1
-
-[node name="LabelTitle" type="Label" parent="SplashScreen" unique_id=2098856288]
-layout_mode = 2
-text = "GENESIS BLOCK"
-horizontal_alignment = 1
-
-[node name="LabelCredentials" type="Label" parent="SplashScreen" unique_id=20869700]
-layout_mode = 2
-text = "Name: SU HUI SAN
-Matric No: 23005010"
-horizontal_alignment = 1
-
-[node name="ButtonContinue" type="Button" parent="SplashScreen" unique_id=-1264664265]
-visible = false
-custom_minimum_size = Vector2(0, 80)
-layout_mode = 2
-size_flags_horizontal = 4
-text = "CONTINUE GAME"
-
-[node name="ButtonStart" type="Button" parent="SplashScreen" unique_id=-1264664266]
-custom_minimum_size = Vector2(0, 80)
-layout_mode = 2
-size_flags_horizontal = 4
-text = "START GAME"
-
-[node name="GameplayVBox" type="VBoxContainer" parent="." unique_id=2020202020]
+[node name="SplashScreen" type="Control" parent="." unique_id=1039646154]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -54,95 +34,187 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="HBoxToolbar" type="HBoxContainer" parent="GameplayVBox" unique_id=-254563256]
+[node name="Background" type="ColorRect" parent="SplashScreen" unique_id=1758970502]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.0392157, 0.054902, 0.101961, 1)
+
+[node name="Artwork" type="TextureRect" parent="SplashScreen" unique_id=450642952]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -61.0
+offset_top = -89.0
+offset_right = 82.0
+offset_bottom = 8.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_splash")
+
+[node name="ButtonStack" type="VBoxContainer" parent="SplashScreen" unique_id=601254539]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = -74.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 10
+alignment = 2
+
+[node name="ButtonContinue" parent="SplashScreen/ButtonStack" unique_id=806653827 instance=ExtResource("3_cyber_btn")]
+layout_mode = 2
+texture_normal = ExtResource("4_continue_normal")
+texture_pressed = ExtResource("5_continue_pressed")
+texture_hover = ExtResource("4_continue_normal")
+
+[node name="ButtonStart" parent="SplashScreen/ButtonStack" unique_id=844752521 instance=ExtResource("3_cyber_btn")]
+layout_mode = 2
+texture_normal = ExtResource("6_start_normal")
+texture_pressed = ExtResource("7_start_pressed")
+texture_hover = ExtResource("6_start_normal")
+
+[node name="GameplayShell" type="Control" parent="." unique_id=1928607667]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Background" type="ColorRect" parent="GameplayShell" unique_id=2006517258]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.0392157, 0.054902, 0.101961, 1)
+
+[node name="RootVBox" type="VBoxContainer" parent="GameplayShell" unique_id=1103613874]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 0
+
+[node name="ContentMargin" type="MarginContainer" parent="GameplayShell/RootVBox" unique_id=758515410]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 8
+
+[node name="ChromeVBox" type="VBoxContainer" parent="GameplayShell/RootVBox/ContentMargin" unique_id=899596556]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="ScreenHeader" parent="GameplayShell/RootVBox/ContentMargin/ChromeVBox" unique_id=1259830167 instance=ExtResource("8_header")]
+layout_mode = 2
+
+[node name="GasBar" parent="GameplayShell/RootVBox/ContentMargin/ChromeVBox" unique_id=768572006 instance=ExtResource("9_gas")]
+layout_mode = 2
+
+[node name="TabContent" type="Control" parent="GameplayShell/RootVBox/ContentMargin/ChromeVBox" unique_id=352732948]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="NodesTab" type="VBoxContainer" parent="GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent" unique_id=1306269556]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 8
+
+[node name="NodesScroll" type="ScrollContainer" parent="GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/NodesTab" unique_id=1336796990]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="BlockListVBox" type="VBoxContainer" parent="GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/NodesTab/NodesScroll" unique_id=285410985]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="MiningTab" type="VBoxContainer" parent="GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent" unique_id=392779689]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 16
+
+[node name="MempoolPanel" type="PanelContainer" parent="GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MiningTab" unique_id=83072751]
+layout_mode = 2
+
+[node name="MempoolLabel" type="Label" parent="GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MiningTab/MempoolPanel" unique_id=476983405]
+layout_mode = 2
+text = "Unverified Transactions: [ 0 / 10 ]"
+horizontal_alignment = 1
+
+[node name="MiningActions" type="HBoxContainer" parent="GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MiningTab" unique_id=1345373816]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="ButtonLearn" type="Button" parent="GameplayVBox/HBoxToolbar" unique_id=-153553155]
-custom_minimum_size = Vector2(100, 48)
-layout_mode = 2
-text = "LEARN"
-
-[node name="LabelJournal" type="Label" parent="GameplayVBox/HBoxToolbar" unique_id=-52543054]
-custom_minimum_size = Vector2(50, 0)
+[node name="WriteColumn" type="VBoxContainer" parent="GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MiningTab/MiningActions" unique_id=679199391]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Learned: Gas ○ | Genesis ○ | Contract ○ | Pool ○ | DAO ○"
-autowrap_mode = 2
+theme_override_constants/separation = 4
 
-[node name="BlockChainScroll" type="ScrollContainer" parent="GameplayVBox" unique_id=48467047]
-custom_minimum_size = Vector2(0, 60)
-layout_mode = 2
-horizontal_scroll_mode = 2
-vertical_scroll_mode = 0
-
-[node name="BlockChainRow" type="HBoxContainer" parent="GameplayVBox/BlockChainScroll" unique_id=149477148]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="LabelCurrency" type="Label" parent="GameplayVBox" unique_id=383738208]
-layout_mode = 2
-text = "Wallet Balance: 0 Gas Units"
-
-[node name="ButtonClicker" type="Button" parent="GameplayVBox" unique_id=200621185]
-custom_minimum_size = Vector2(0, 200)
+[node name="ButtonWrite" type="Button" parent="GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MiningTab/MiningActions/WriteColumn" unique_id=989057543]
+custom_minimum_size = Vector2(0, 64)
 layout_mode = 2
 text = "WRITE CODE BLOCK"
 
-[node name="ScrollContainer" type="ScrollContainer" parent="GameplayVBox" unique_id=1686406097]
+[node name="WriteHint" type="Label" parent="GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MiningTab/MiningActions/WriteColumn" unique_id=1995011682]
 layout_mode = 2
-size_flags_vertical = 3
-
-[node name="UpgradeListContainer" type="VBoxContainer" parent="GameplayVBox/ScrollContainer" unique_id=1304642632]
-layout_mode = 2
-
-[node name="ButtonUpgradeContract" type="Button" parent="GameplayVBox/ScrollContainer/UpgradeListContainer" unique_id=1268817527]
-layout_mode = 2
-text = "Deploy Smart Contract"
-
-[node name="ButtonUpgradePool" type="Button" parent="GameplayVBox/ScrollContainer/UpgradeListContainer" unique_id=496229236]
-layout_mode = 2
-text = "Setup Liquidity Pool"
-
-[node name="ButtonUpgradeDao" type="Button" parent="GameplayVBox/ScrollContainer/UpgradeListContainer" unique_id=449266112]
-layout_mode = 2
-text = "Establish DAO Governance"
-
-[node name="LearnPanel" type="PanelContainer" parent="." unique_id=755537754]
-visible = false
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="VBoxContainer" type="VBoxContainer" parent="LearnPanel" unique_id=856547855]
-layout_mode = 2
-theme_override_constants/separation = 16
-
-[node name="LabelLearnTitle" type="Label" parent="LearnPanel/VBoxContainer" unique_id=957557956]
-layout_mode = 2
-text = "GLOSSARY"
+text = "Adds raw tx data
+(+1 Tx to Pool)"
 horizontal_alignment = 1
+autowrap_mode = 2
 
-[node name="ScrollContainer" type="ScrollContainer" parent="LearnPanel/VBoxContainer" unique_id=1058568057]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="GlossaryLabel" type="RichTextLabel" parent="LearnPanel/VBoxContainer/ScrollContainer" unique_id=1159578158]
+[node name="ValidateColumn" type="VBoxContainer" parent="GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MiningTab/MiningActions" unique_id=1147848939]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_vertical = 3
-fit_content = true
-scroll_active = false
+theme_override_constants/separation = 4
 
-[node name="ButtonLearnBack" type="Button" parent="LearnPanel/VBoxContainer" unique_id=1260588259]
-custom_minimum_size = Vector2(0, 48)
+[node name="ButtonValidate" type="Button" parent="GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MiningTab/MiningActions/ValidateColumn" unique_id=1876413320]
+custom_minimum_size = Vector2(0, 64)
 layout_mode = 2
-text = "BACK"
+disabled = true
+text = "VALIDATE BLOCK"
 
-[node name="QuizPanel" type="PanelContainer" parent="." unique_id=1765638764]
+[node name="ValidateHint" type="Label" parent="GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MiningTab/MiningActions/ValidateColumn" unique_id=1001764423]
+layout_mode = 2
+text = "Requires 10 tx"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="PayoutLabel" type="Label" parent="GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MiningTab" unique_id=820832805]
+layout_mode = 2
+text = "Rewards: +500 Gas Units"
+horizontal_alignment = 1
+
+[node name="GasRateLabel" type="Label" parent="GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MiningTab" unique_id=1748208353]
+layout_mode = 2
+text = "Network Speed: 0 Gas/sec"
+horizontal_alignment = 1
+
+[node name="MarketTab" type="VBoxContainer" parent="GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent" unique_id=2077493327]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -151,49 +223,169 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="QuizPanel" unique_id=1866648865]
+[node name="MarketScroll" type="ScrollContainer" parent="GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MarketTab" unique_id=1875085358]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="MarketCards" type="VBoxContainer" parent="GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MarketTab/MarketScroll" unique_id=139198842]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_constants/separation = 12
+
+[node name="CardContract" parent="GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MarketTab/MarketScroll/MarketCards" unique_id=1290248280 instance=ExtResource("11_card")]
+
+[node name="CardPool" parent="GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MarketTab/MarketScroll/MarketCards" unique_id=1716891135 instance=ExtResource("11_card")]
+
+[node name="CardDao" parent="GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MarketTab/MarketScroll/MarketCards" unique_id=595373192 instance=ExtResource("11_card")]
+
+[node name="AcademyTab" type="VBoxContainer" parent="GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent" unique_id=1684487757]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 10
+
+[node name="AcademySubNav" parent="GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/AcademyTab" unique_id=697345054 instance=ExtResource("11_subnav")]
+
+[node name="AuditsScroll" type="ScrollContainer" parent="GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/AcademyTab" unique_id=560000564]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="AssessmentCards" type="VBoxContainer" parent="GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/AcademyTab/AuditsScroll" unique_id=1619815409]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_constants/separation = 12
+
+[node name="AssessmentContract" parent="GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/AcademyTab/AuditsScroll/AssessmentCards" unique_id=1444357619 instance=ExtResource("11_assessment")]
+
+[node name="AssessmentPool" parent="GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/AcademyTab/AuditsScroll/AssessmentCards" unique_id=1517902233 instance=ExtResource("11_assessment")]
+
+[node name="AssessmentDao" parent="GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/AcademyTab/AuditsScroll/AssessmentCards" unique_id=1083780003 instance=ExtResource("11_assessment")]
+
+[node name="GlossaryScroll" type="ScrollContainer" parent="GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/AcademyTab" unique_id=27781498]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="GlossaryList" type="VBoxContainer" parent="GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/AcademyTab/GlossaryScroll" unique_id=546985794]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_constants/separation = 14
+
+[node name="BottomNavBar" parent="GameplayShell/RootVBox" unique_id=1447322207 instance=ExtResource("10_nav")]
+layout_mode = 2
+
+[node name="QuizPanel" type="Control" parent="." unique_id=565184804]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="QuizBackground" type="ColorRect" parent="QuizPanel" unique_id=387128850]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.0392157, 0.054902, 0.101961, 0.96)
+
+[node name="QuizBorder" type="PanelContainer" parent="QuizPanel" unique_id=150086723]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = 24.0
+offset_right = -12.0
+offset_bottom = -24.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="QuizVBox" type="VBoxContainer" parent="QuizPanel/QuizBorder" unique_id=535813365]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="LabelQuizTitle" type="Label" parent="QuizPanel/VBoxContainer" unique_id=1967658966]
+[node name="TitleStack" type="VBoxContainer" parent="QuizPanel/QuizBorder/QuizVBox" unique_id=891341864]
 layout_mode = 2
-text = "Assessment"
+theme_override_constants/separation = 6
+
+[node name="TitleShadow" type="Label" parent="QuizPanel/QuizBorder/QuizVBox/TitleStack" unique_id=1365459230]
+layout_mode = 2
+text = "QUIZ"
 horizontal_alignment = 1
 
-[node name="LabelQuizQuestion" type="Label" parent="QuizPanel/VBoxContainer" unique_id=2068669067]
-custom_minimum_size = Vector2(720, 0)
+[node name="QuizTitleLabel" type="Label" parent="QuizPanel/QuizBorder/QuizVBox/TitleStack" unique_id=30788931]
+layout_mode = 2
+text = "SMART CONTRACT ASSESSMENT"
+horizontal_alignment = 1
+
+[node name="TitleUnderline" type="ColorRect" parent="QuizPanel/QuizBorder/QuizVBox/TitleStack" unique_id=1780713723]
+custom_minimum_size = Vector2(0, 2)
+layout_mode = 2
+
+[node name="AvatarRow" type="CenterContainer" parent="QuizPanel/QuizBorder/QuizVBox" unique_id=918892979]
+layout_mode = 2
+
+[node name="AvatarPanel" type="PanelContainer" parent="QuizPanel/QuizBorder/QuizVBox/AvatarRow" unique_id=1256995221]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+
+[node name="AvatarIcon" type="TextureRect" parent="QuizPanel/QuizBorder/QuizVBox/AvatarRow/AvatarPanel" unique_id=1237106960]
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("12_krmtw")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="QuestionPanel" type="PanelContainer" parent="QuizPanel/QuizBorder/QuizVBox" unique_id=881708943]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="QuizQuestionLabel" type="Label" parent="QuizPanel/QuizBorder/QuizVBox/QuestionPanel" unique_id=1249639762]
 layout_mode = 2
 text = "Question?"
 autowrap_mode = 3
 
-[node name="ButtonQuizOption0" type="Button" parent="QuizPanel/VBoxContainer" unique_id=-2125288128]
-custom_minimum_size = Vector2(0, 48)
+[node name="OptionsVBox" type="VBoxContainer" parent="QuizPanel/QuizBorder/QuizVBox" unique_id=289828132]
 layout_mode = 2
-text = "Option A"
+theme_override_constants/separation = 10
 
-[node name="ButtonQuizOption1" type="Button" parent="QuizPanel/VBoxContainer" unique_id=-2024278027]
-custom_minimum_size = Vector2(0, 48)
+[node name="ButtonQuizOption0" parent="QuizPanel/QuizBorder/QuizVBox/OptionsVBox" unique_id=1316916643 instance=ExtResource("12_quiz_opt")]
 layout_mode = 2
-text = "Option B"
 
-[node name="ButtonQuizOption2" type="Button" parent="QuizPanel/VBoxContainer" unique_id=-1923267926]
-custom_minimum_size = Vector2(0, 48)
+[node name="ButtonQuizOption1" parent="QuizPanel/QuizBorder/QuizVBox/OptionsVBox" unique_id=1285420613 instance=ExtResource("12_quiz_opt")]
 layout_mode = 2
-text = "Option C"
 
-[node name="LabelQuizFeedback" type="Label" parent="QuizPanel/VBoxContainer" unique_id=-1822257825]
-custom_minimum_size = Vector2(720, 0)
+[node name="ButtonQuizOption2" parent="QuizPanel/QuizBorder/QuizVBox/OptionsVBox" unique_id=1052306331 instance=ExtResource("12_quiz_opt")]
 layout_mode = 2
+
+[node name="HintPanel" type="PanelContainer" parent="QuizPanel/QuizBorder/QuizVBox" unique_id=1785384512]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+
+[node name="QuizFeedbackLabel" type="Label" parent="QuizPanel/QuizBorder/QuizVBox/HintPanel" unique_id=2064873885]
+layout_mode = 2
+text = "[ Hint appears here if wrong ]"
+horizontal_alignment = 1
 autowrap_mode = 3
 
-[connection signal="pressed" from="SplashScreen/ButtonContinue" to="." method="_on_continue_button_pressed"]
-[connection signal="pressed" from="SplashScreen/ButtonStart" to="." method="_on_start_button_pressed"]
-[connection signal="pressed" from="GameplayVBox/HBoxToolbar/ButtonLearn" to="." method="_on_learn_button_pressed"]
-[connection signal="pressed" from="GameplayVBox/ButtonClicker" to="." method="_on_clicker_button_pressed"]
-[connection signal="pressed" from="GameplayVBox/ScrollContainer/UpgradeListContainer/ButtonUpgradeContract" to="." method="_on_button_upgrade_contract_pressed"]
-[connection signal="pressed" from="GameplayVBox/ScrollContainer/UpgradeListContainer/ButtonUpgradePool" to="." method="_on_button_upgrade_pool_pressed"]
-[connection signal="pressed" from="GameplayVBox/ScrollContainer/UpgradeListContainer/ButtonUpgradeDao" to="." method="_on_button_upgrade_dao_pressed"]
-[connection signal="pressed" from="LearnPanel/VBoxContainer/ButtonLearnBack" to="." method="_on_learn_back_pressed"]
-[connection signal="pressed" from="QuizPanel/VBoxContainer/ButtonQuizOption0" to="." method="_on_quiz_option_0_pressed"]
-[connection signal="pressed" from="QuizPanel/VBoxContainer/ButtonQuizOption1" to="." method="_on_quiz_option_1_pressed"]
-[connection signal="pressed" from="QuizPanel/VBoxContainer/ButtonQuizOption2" to="." method="_on_quiz_option_2_pressed"]
+[connection signal="pressed" from="SplashScreen/ButtonStack/ButtonContinue" to="." method="_on_continue_button_pressed"]
+[connection signal="pressed" from="SplashScreen/ButtonStack/ButtonStart" to="." method="_on_start_button_pressed"]
+[connection signal="pressed" from="GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MiningTab/MiningActions/WriteColumn/ButtonWrite" to="." method="_on_write_button_pressed"]
+[connection signal="pressed" from="GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MiningTab/MiningActions/ValidateColumn/ButtonValidate" to="." method="_on_validate_button_pressed"]
+[connection signal="pressed" from="QuizPanel/QuizBorder/QuizVBox/OptionsVBox/ButtonQuizOption0" to="." method="_on_quiz_option_0_pressed"]
+[connection signal="pressed" from="QuizPanel/QuizBorder/QuizVBox/OptionsVBox/ButtonQuizOption1" to="." method="_on_quiz_option_1_pressed"]
+[connection signal="pressed" from="QuizPanel/QuizBorder/QuizVBox/OptionsVBox/ButtonQuizOption2" to="." method="_on_quiz_option_2_pressed"]

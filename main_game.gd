@@ -1,6 +1,10 @@
 extends Control
 
 const GameContent = preload("res://game_content.gd")
+const CyberConstants = preload("res://ui/theme/cyber_constants.gd")
+const CyberUI = preload("res://ui/theme/cyber_ui.gd")
+const GlossaryEntryScene = preload("res://ui/components/glossary_entry.tscn")
+const UpgradeCardBase = preload("res://ui/components/upgrade_card_base.gd")
 const SAVE_PATH := "user://genesis_block_save.json"
 const MAX_VISIBLE_BLOCKS := 8
 const MAX_STORED_BLOCKS := 50
@@ -11,6 +15,7 @@ const MAX_STORED_BLOCKS := 50
 var gas_units: float = 0.0
 var gas_per_click: float = 1.0
 var gas_per_second: float = 0.0
+var mempool_count: int = 0
 
 var cost_contract: float = 15.0
 var count_contract: int = 0
@@ -30,14 +35,6 @@ var yield_dao: float = 50.0
 var block_count: int = 0
 var block_chain: Array = []
 
-var concepts_unlocked: Dictionary = {
-	"gas": false,
-	"genesis_block": false,
-	"smart_contract": false,
-	"liquidity_pool": false,
-	"dao": false,
-}
-
 var quiz_passed: Dictionary = {
 	"contract": false,
 	"pool": false,
@@ -46,33 +43,67 @@ var quiz_passed: Dictionary = {
 
 var active_quiz_tier: String = ""
 var quiz_blocking_input: bool = false
+var _active_tab: int = CyberConstants.TAB_MINING
+var _active_academy_subtab: int = CyberConstants.ACADEMY_SUBTAB_AUDITS
 
 # ==========================================
 # VISUAL COMPONENT NODE LINK REFERENCES
 # ==========================================
 @onready var splash_screen = $SplashScreen
-@onready var button_continue = $SplashScreen/ButtonContinue
-@onready var button_start = $SplashScreen/ButtonStart
-@onready var gameplay_container = $GameplayVBox
-@onready var button_learn = $GameplayVBox/HBoxToolbar/ButtonLearn
-@onready var journal_label = $GameplayVBox/HBoxToolbar/LabelJournal
-@onready var block_chain_row = $GameplayVBox/BlockChainScroll/BlockChainRow
-@onready var currency_label = $GameplayVBox/LabelCurrency
-@onready var button_clicker = $GameplayVBox/ButtonClicker
-@onready var contract_button = $GameplayVBox/ScrollContainer/UpgradeListContainer/ButtonUpgradeContract
-@onready var pool_button = $GameplayVBox/ScrollContainer/UpgradeListContainer/ButtonUpgradePool
-@onready var dao_button = $GameplayVBox/ScrollContainer/UpgradeListContainer/ButtonUpgradeDao
-@onready var learn_panel = $LearnPanel
-@onready var glossary_label = $LearnPanel/VBoxContainer/ScrollContainer/GlossaryLabel
+@onready var button_continue = $SplashScreen/ButtonStack/ButtonContinue
+@onready var button_start = $SplashScreen/ButtonStack/ButtonStart
+@onready var gameplay_shell = $GameplayShell
+@onready var screen_header = $GameplayShell/RootVBox/ContentMargin/ChromeVBox/ScreenHeader
+@onready var gas_bar = $GameplayShell/RootVBox/ContentMargin/ChromeVBox/GasBar
+@onready var bottom_nav = $GameplayShell/RootVBox/BottomNavBar
+@onready var nodes_tab = $GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/NodesTab
+@onready var block_list_vbox = $GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/NodesTab/NodesScroll/BlockListVBox
+@onready var mining_tab = $GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MiningTab
+@onready var mempool_panel = $GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MiningTab/MempoolPanel
+@onready var mempool_label = $GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MiningTab/MempoolPanel/MempoolLabel
+@onready var button_write = $GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MiningTab/MiningActions/WriteColumn/ButtonWrite
+@onready var button_validate = $GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MiningTab/MiningActions/ValidateColumn/ButtonValidate
+@onready var write_hint = $GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MiningTab/MiningActions/WriteColumn/WriteHint
+@onready var validate_hint = $GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MiningTab/MiningActions/ValidateColumn/ValidateHint
+@onready var payout_label = $GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MiningTab/PayoutLabel
+@onready var gas_rate_label = $GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MiningTab/GasRateLabel
+@onready var market_tab = $GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MarketTab
+@onready var card_contract = $GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MarketTab/MarketScroll/MarketCards/CardContract
+@onready var card_pool = $GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MarketTab/MarketScroll/MarketCards/CardPool
+@onready var card_dao = $GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MarketTab/MarketScroll/MarketCards/CardDao
+@onready var academy_tab = $GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/AcademyTab
+@onready var academy_sub_nav = $GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/AcademyTab/AcademySubNav
+@onready var audits_scroll = $GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/AcademyTab/AuditsScroll
+@onready var assessment_cards = $GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/AcademyTab/AuditsScroll/AssessmentCards
+@onready var assessment_contract = $GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/AcademyTab/AuditsScroll/AssessmentCards/AssessmentContract
+@onready var assessment_pool = $GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/AcademyTab/AuditsScroll/AssessmentCards/AssessmentPool
+@onready var assessment_dao = $GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/AcademyTab/AuditsScroll/AssessmentCards/AssessmentDao
+@onready var glossary_scroll = $GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/AcademyTab/GlossaryScroll
+@onready var glossary_list = $GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/AcademyTab/GlossaryScroll/GlossaryList
+@onready var quiz_avatar_icon = $QuizPanel/QuizBorder/QuizVBox/AvatarRow/AvatarPanel/AvatarIcon
 @onready var quiz_panel = $QuizPanel
-@onready var quiz_title_label = $QuizPanel/VBoxContainer/LabelQuizTitle
-@onready var quiz_question_label = $QuizPanel/VBoxContainer/LabelQuizQuestion
+@onready var quiz_title_label = $QuizPanel/QuizBorder/QuizVBox/TitleStack/QuizTitleLabel
+@onready var quiz_title_shadow = $QuizPanel/QuizBorder/QuizVBox/TitleStack/TitleShadow
+@onready var quiz_question_label = $QuizPanel/QuizBorder/QuizVBox/QuestionPanel/QuizQuestionLabel
 @onready var quiz_option_buttons: Array[Button] = [
-	$QuizPanel/VBoxContainer/ButtonQuizOption0,
-	$QuizPanel/VBoxContainer/ButtonQuizOption1,
-	$QuizPanel/VBoxContainer/ButtonQuizOption2,
+	$QuizPanel/QuizBorder/QuizVBox/OptionsVBox/ButtonQuizOption0,
+	$QuizPanel/QuizBorder/QuizVBox/OptionsVBox/ButtonQuizOption1,
+	$QuizPanel/QuizBorder/QuizVBox/OptionsVBox/ButtonQuizOption2,
 ]
-@onready var quiz_feedback_label = $QuizPanel/VBoxContainer/LabelQuizFeedback
+@onready var quiz_feedback_label = $QuizPanel/QuizBorder/QuizVBox/HintPanel/QuizFeedbackLabel
+@onready var content_margin = $GameplayShell/RootVBox/ContentMargin
+@onready var chrome_vbox = $GameplayShell/RootVBox/ContentMargin/ChromeVBox
+@onready var mining_actions = $GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MiningTab/MiningActions
+@onready var write_column = $GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MiningTab/MiningActions/WriteColumn
+@onready var validate_column = $GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MiningTab/MiningActions/ValidateColumn
+@onready var market_cards = $GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MarketTab/MarketScroll/MarketCards
+@onready var quiz_border = $QuizPanel/QuizBorder
+@onready var quiz_vbox = $QuizPanel/QuizBorder/QuizVBox
+@onready var quiz_options_vbox = $QuizPanel/QuizBorder/QuizVBox/OptionsVBox
+@onready var quiz_hint_panel = $QuizPanel/QuizBorder/QuizVBox/HintPanel
+@onready var quiz_avatar_panel = $QuizPanel/QuizBorder/QuizVBox/AvatarRow/AvatarPanel
+@onready var quiz_question_panel = $QuizPanel/QuizBorder/QuizVBox/QuestionPanel
+@onready var quiz_title_stack = $QuizPanel/QuizBorder/QuizVBox/TitleStack
 
 var game_timer: Timer
 var game_started: bool = false
@@ -83,13 +114,141 @@ var _last_visualized_block_count: int = -1
 # INITIALIZATION LIFECYCLE
 # ==========================================
 func _ready():
-	learn_panel.visible = false
 	quiz_panel.visible = false
-	load_game()
+	_setup_cyber_styles()
 	_populate_glossary()
+	_connect_market_cards()
+	_connect_assessment_cards()
+	academy_sub_nav.configure(PackedStringArray(CyberConstants.ACADEMY_SUBTAB_LABELS))
+	academy_sub_nav.tab_selected.connect(_on_academy_subtab_selected)
+	_switch_academy_subtab(CyberConstants.ACADEMY_SUBTAB_AUDITS)
+	bottom_nav.tab_selected.connect(_on_tab_selected)
+	load_game()
 	_update_splash_buttons()
 	splash_screen.visible = true
-	gameplay_container.visible = false
+	gameplay_shell.visible = false
+
+func _setup_cyber_styles() -> void:
+	_apply_gameplay_layout()
+	mempool_panel.add_theme_stylebox_override("panel", CyberUI.outline_panel(CyberConstants.CYAN))
+	CyberUI.apply_title(mempool_label, CyberConstants.CYAN, CyberConstants.BASE_FONT_BODY_LG)
+	_style_mining_button(button_write, true)
+	_style_mining_button(button_validate, false)
+	CyberUI.apply_italic(write_hint, CyberConstants.TEXT_DIM, CyberConstants.BASE_FONT_CAPTION)
+	CyberUI.apply_italic(validate_hint, CyberConstants.TEXT_DIM, CyberConstants.BASE_FONT_CAPTION)
+	CyberUI.apply_title(payout_label, CyberConstants.CYAN, CyberConstants.BASE_FONT_SMALL)
+	CyberUI.apply_body(gas_rate_label, CyberConstants.TEXT_GRAY, CyberConstants.BASE_FONT_SMALL)
+	_setup_quiz_styles()
+
+func _apply_gameplay_layout() -> void:
+	var margin := CyberUI.scaled(CyberConstants.BASE_MARGIN)
+	content_margin.add_theme_constant_override("margin_left", margin)
+	content_margin.add_theme_constant_override("margin_top", margin)
+	content_margin.add_theme_constant_override("margin_right", margin)
+	content_margin.add_theme_constant_override("margin_bottom", CyberUI.scaled(CyberConstants.BASE_MARGIN_BOTTOM))
+	CyberUI.set_separation(chrome_vbox, CyberConstants.BASE_SEP_CHROME)
+	CyberUI.set_separation(nodes_tab, CyberConstants.BASE_SEP_COMPACT)
+	CyberUI.set_separation(block_list_vbox, CyberConstants.BASE_SEP_COMPACT)
+	CyberUI.set_separation(mining_tab, CyberConstants.BASE_SEP_SECTION)
+	CyberUI.set_separation(mining_actions, CyberConstants.BASE_SEP_CHROME)
+	CyberUI.set_separation(write_column, CyberConstants.BASE_SEP_TIGHT)
+	CyberUI.set_separation(validate_column, CyberConstants.BASE_SEP_TIGHT)
+	CyberUI.set_separation(market_cards, CyberConstants.BASE_SEP_CARD)
+	CyberUI.set_separation(assessment_cards, CyberConstants.BASE_SEP_CARD)
+	CyberUI.set_separation(academy_tab, CyberConstants.BASE_SEP_COMPACT)
+	CyberUI.set_separation(glossary_list, CyberConstants.BASE_SEP_GLOSSARY)
+	var mining_btn_h := CyberUI.touch_height(CyberConstants.BASE_MINING_BUTTON_HEIGHT)
+	button_write.custom_minimum_size = Vector2(0, mining_btn_h)
+	button_validate.custom_minimum_size = Vector2(0, mining_btn_h)
+
+func _style_mining_button(button: Button, primary: bool) -> void:
+	var border := CyberConstants.CYAN if primary else CyberConstants.MAGENTA
+	var box := CyberUI.flat_button(border)
+	button.add_theme_stylebox_override("normal", box)
+	button.add_theme_stylebox_override("hover", box)
+	button.add_theme_stylebox_override("pressed", box)
+	button.add_theme_stylebox_override("disabled", box)
+	button.add_theme_color_override("font_color", CyberConstants.TEXT_WHITE)
+	button.add_theme_color_override("font_disabled_color", CyberConstants.TEXT_DIM)
+	CyberUI.apply_button_font(button, CyberConstants.BASE_FONT_SMALL, true)
+
+func _setup_quiz_styles() -> void:
+	var inset := CyberUI.scaled_f(12.0)
+	quiz_border.offset_left = inset
+	quiz_border.offset_top = CyberUI.scaled_f(24.0)
+	quiz_border.offset_right = -inset
+	quiz_border.offset_bottom = -CyberUI.scaled_f(24.0)
+	quiz_border.add_theme_stylebox_override(
+		"panel",
+		CyberUI.outline_panel(CyberConstants.CYAN, CyberConstants.BG_DARK, 2)
+	)
+	CyberUI.set_separation(quiz_vbox, CyberConstants.BASE_SEP_SECTION)
+	CyberUI.set_separation(quiz_title_stack, CyberConstants.BASE_SEP_HEADER)
+	CyberUI.set_separation(quiz_options_vbox, CyberConstants.BASE_SEP_COMPACT)
+	quiz_title_stack.get_node("TitleUnderline").custom_minimum_size.y = CyberUI.scaled(
+		CyberConstants.BASE_UNDERLINE
+	)
+	quiz_title_shadow.text = "QUIZ"
+	CyberUI.apply_title(quiz_title_shadow, CyberConstants.MAGENTA, CyberConstants.BASE_FONT_TITLE)
+	quiz_title_shadow.position = Vector2(2, 2)
+	CyberUI.apply_title(quiz_title_label, CyberConstants.CYAN, CyberConstants.BASE_FONT_TITLE)
+	quiz_avatar_panel.custom_minimum_size = CyberUI.scaled_vec2(
+		Vector2(CyberConstants.BASE_QUIZ_AVATAR, CyberConstants.BASE_QUIZ_AVATAR)
+	)
+	quiz_avatar_panel.add_theme_stylebox_override(
+		"panel",
+		CyberUI.outline_panel(CyberConstants.MAGENTA)
+	)
+	_setup_quiz_icon()
+	quiz_question_panel.add_theme_stylebox_override(
+		"panel",
+		CyberUI.outline_panel(CyberConstants.TEXT_WHITE, CyberConstants.BG_PANEL, 1)
+	)
+	
+	CyberUI.apply_body(quiz_question_label, CyberConstants.TEXT_WHITE, CyberConstants.BASE_FONT_BODY)
+	quiz_hint_panel.custom_minimum_size.y = CyberUI.scaled(CyberConstants.BASE_QUIZ_HINT_HEIGHT)
+	var hint_box := StyleBoxFlat.new()
+	hint_box.bg_color = Color(0, 0, 0, 0)
+	hint_box.border_color = CyberConstants.MAGENTA
+	hint_box.set_border_width_all(1)
+	hint_box.draw_center = false
+	quiz_hint_panel.add_theme_stylebox_override("panel", hint_box)
+	CyberUI.apply_italic(quiz_feedback_label, CyberConstants.MAGENTA, CyberConstants.BASE_FONT_SMALL)
+	quiz_feedback_label.text = "[ Hint appears here if wrong ]"
+
+func _setup_quiz_icon() -> void:
+	quiz_avatar_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	quiz_avatar_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	quiz_avatar_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	quiz_avatar_icon.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	quiz_avatar_icon.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	var texture := _load_quiz_icon()
+	if texture:
+		quiz_avatar_icon.texture = texture
+		quiz_avatar_icon.visible = true
+	else:
+		quiz_avatar_icon.visible = false
+
+func _load_quiz_icon() -> Texture2D:
+	if not ResourceLoader.exists(CyberConstants.QUIZ_ICON_PATH):
+		return null
+	return load(CyberConstants.QUIZ_ICON_PATH) as Texture2D
+
+func _connect_market_cards() -> void:
+	card_contract.upgrade_pressed.connect(_on_button_upgrade_contract_pressed)
+	card_pool.upgrade_pressed.connect(_on_button_upgrade_pool_pressed)
+	card_dao.upgrade_pressed.connect(_on_button_upgrade_dao_pressed)
+	card_contract.audit_pressed.connect(_on_audit_pressed)
+	card_pool.audit_pressed.connect(_on_audit_pressed)
+	card_dao.audit_pressed.connect(_on_audit_pressed)
+	card_contract.go_to_academy_pressed.connect(_on_go_to_academy_pressed)
+	card_pool.go_to_academy_pressed.connect(_on_go_to_academy_pressed)
+	card_dao.go_to_academy_pressed.connect(_on_go_to_academy_pressed)
+
+func _connect_assessment_cards() -> void:
+	assessment_contract.audit_pressed.connect(_on_audit_pressed)
+	assessment_pool.audit_pressed.connect(_on_audit_pressed)
+	assessment_dao.audit_pressed.connect(_on_audit_pressed)
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
@@ -110,6 +269,7 @@ func reset_game() -> void:
 	gas_units = 0.0
 	gas_per_click = 1.0
 	gas_per_second = 0.0
+	mempool_count = 0
 	cost_contract = 15.0
 	count_contract = 0
 	cost_pool = 100.0
@@ -118,13 +278,6 @@ func reset_game() -> void:
 	count_dao = 0
 	block_count = 0
 	block_chain = []
-	concepts_unlocked = {
-		"gas": false,
-		"genesis_block": false,
-		"smart_contract": false,
-		"liquidity_pool": false,
-		"dao": false,
-	}
 	quiz_passed = {
 		"contract": false,
 		"pool": false,
@@ -133,6 +286,8 @@ func reset_game() -> void:
 	active_quiz_tier = ""
 	quiz_blocking_input = false
 	game_started = false
+	_active_tab = CyberConstants.TAB_MINING
+	_active_academy_subtab = CyberConstants.ACADEMY_SUBTAB_AUDITS
 	_last_visualized_block_count = -1
 	if game_timer:
 		game_timer.stop()
@@ -141,12 +296,40 @@ func reset_game() -> void:
 
 func _enter_gameplay(from_splash: bool) -> void:
 	splash_screen.visible = false
-	gameplay_container.visible = true
+	gameplay_shell.visible = true
 	_last_visualized_block_count = -1
 	setup_background_clock()
+	_switch_tab(CyberConstants.TAB_MINING)
 	refresh_user_interface()
 	if from_splash:
 		save_game()
+
+func _on_tab_selected(tab_index: int) -> void:
+	if quiz_blocking_input:
+		return
+	_switch_tab(tab_index)
+
+func _switch_tab(tab_index: int) -> void:
+	_active_tab = tab_index
+	bottom_nav.set_active_tab(tab_index)
+	screen_header.set_title(CyberConstants.TAB_TITLES[tab_index])
+	nodes_tab.visible = tab_index == CyberConstants.TAB_NODES
+	mining_tab.visible = tab_index == CyberConstants.TAB_MINING
+	market_tab.visible = tab_index == CyberConstants.TAB_MARKET
+	academy_tab.visible = tab_index == CyberConstants.TAB_ACADEMY
+	if tab_index == CyberConstants.TAB_ACADEMY:
+		_switch_academy_subtab(CyberConstants.ACADEMY_SUBTAB_AUDITS)
+
+func _on_academy_subtab_selected(subtab_index: int) -> void:
+	if quiz_blocking_input:
+		return
+	_switch_academy_subtab(subtab_index)
+
+func _switch_academy_subtab(subtab_index: int) -> void:
+	_active_academy_subtab = subtab_index
+	academy_sub_nav.set_active_tab(subtab_index)
+	audits_scroll.visible = subtab_index == CyberConstants.ACADEMY_SUBTAB_AUDITS
+	glossary_scroll.visible = subtab_index == CyberConstants.ACADEMY_SUBTAB_GLOSSARY
 
 func setup_background_clock():
 	if game_timer:
@@ -165,6 +348,7 @@ func save_game() -> void:
 		"gas_units": gas_units,
 		"gas_per_click": gas_per_click,
 		"gas_per_second": gas_per_second,
+		"mempool_count": mempool_count,
 		"cost_contract": cost_contract,
 		"count_contract": count_contract,
 		"cost_pool": cost_pool,
@@ -173,7 +357,6 @@ func save_game() -> void:
 		"count_dao": count_dao,
 		"block_count": block_count,
 		"block_chain": _trim_block_chain_for_save(),
-		"concepts_unlocked": concepts_unlocked,
 		"quiz_passed": quiz_passed,
 		"game_started": game_started,
 	}
@@ -195,6 +378,7 @@ func load_game() -> void:
 	gas_units = float(data.get("gas_units", gas_units))
 	gas_per_click = float(data.get("gas_per_click", gas_per_click))
 	gas_per_second = float(data.get("gas_per_second", gas_per_second))
+	mempool_count = int(data.get("mempool_count", mempool_count))
 	cost_contract = float(data.get("cost_contract", cost_contract))
 	count_contract = int(data.get("count_contract", count_contract))
 	cost_pool = float(data.get("cost_pool", cost_pool))
@@ -203,9 +387,9 @@ func load_game() -> void:
 	count_dao = int(data.get("count_dao", count_dao))
 	block_count = int(data.get("block_count", block_count))
 	block_chain = data.get("block_chain", block_chain)
-	_merge_dictionary(concepts_unlocked, data.get("concepts_unlocked", {}))
 	_merge_dictionary(quiz_passed, data.get("quiz_passed", {}))
 	game_started = bool(data.get("game_started", game_started))
+	mempool_count = mini(mempool_count, CyberConstants.MEMPOOL_CAPACITY)
 
 func _trim_block_chain_for_save() -> Array:
 	if block_chain.size() <= MAX_STORED_BLOCKS:
@@ -222,47 +406,55 @@ func _merge_dictionary(target: Dictionary, source: Variant) -> void:
 # ==========================================
 # INTERACTIVE USER ACTIONS
 # ==========================================
-func _on_clicker_button_pressed():
+func _on_write_button_pressed():
 	if quiz_blocking_input:
 		return
-	gas_units += gas_per_click
-	append_block()
-	unlock_concept("gas")
-	if block_count == 1:
-		unlock_concept("genesis_block")
+	if mempool_count >= CyberConstants.MEMPOOL_CAPACITY:
+		return
+	var added := int(gas_per_click)
+	mempool_count = mini(mempool_count + added, CyberConstants.MEMPOOL_CAPACITY)
 	refresh_user_interface()
-	if block_count % 5 == 0:
-		save_game()
+	save_game()
+
+func _on_validate_button_pressed():
+	if quiz_blocking_input:
+		return
+	if mempool_count < CyberConstants.MEMPOOL_CAPACITY:
+		return
+	var payout := _calculate_validate_payout()
+	gas_units += payout
+	mempool_count = 0
+	append_block()
+	refresh_user_interface()
+	save_game()
+
+func _calculate_validate_payout() -> float:
+	return (
+		CyberConstants.VALIDATE_BASE_PAYOUT
+		+ (block_count * CyberConstants.VALIDATE_BLOCK_MULT)
+		+ (gas_per_second * CyberConstants.VALIDATE_PASSIVE_MULT)
+	)
 
 func _on_button_upgrade_contract_pressed():
-	if quiz_blocking_input or gas_units < cost_contract:
+	if quiz_blocking_input or not is_certified("contract") or gas_units < cost_contract:
 		return
-	var is_first_purchase := count_contract == 0
 	apply_contract_upgrade()
 	refresh_user_interface()
 	save_game()
-	if is_first_purchase and not quiz_passed["contract"]:
-		show_quiz("contract")
 
 func _on_button_upgrade_pool_pressed():
-	if quiz_blocking_input or gas_units < cost_pool:
+	if quiz_blocking_input or not is_certified("pool") or gas_units < cost_pool:
 		return
-	var is_first_purchase := count_pool == 0
 	apply_pool_upgrade()
 	refresh_user_interface()
 	save_game()
-	if is_first_purchase and not quiz_passed["pool"]:
-		show_quiz("pool")
 
 func _on_button_upgrade_dao_pressed():
-	if quiz_blocking_input or gas_units < cost_dao:
+	if quiz_blocking_input or not is_certified("dao") or gas_units < cost_dao:
 		return
-	var is_first_purchase := count_dao == 0
 	apply_dao_upgrade()
 	refresh_user_interface()
 	save_game()
-	if is_first_purchase and not quiz_passed["dao"]:
-		show_quiz("dao")
 
 func apply_contract_upgrade() -> void:
 	gas_units -= cost_contract
@@ -288,23 +480,12 @@ func _on_every_second_elapsed():
 	gas_units += gas_per_second
 	refresh_user_interface()
 
-func _on_learn_button_pressed():
-	if quiz_blocking_input:
-		return
-	gameplay_container.visible = false
-	learn_panel.visible = true
-
-func _on_learn_back_pressed():
-	learn_panel.visible = false
-	gameplay_container.visible = true
-
 func _on_quiz_option_pressed(option_index: int) -> void:
 	if active_quiz_tier.is_empty():
 		return
 	var quiz: Dictionary = GameContent.QUIZZES[active_quiz_tier]
 	if option_index == quiz["correct_index"]:
 		quiz_passed[active_quiz_tier] = true
-		unlock_concept(quiz["concept"])
 		hide_quiz()
 		refresh_user_interface()
 		save_game()
@@ -341,46 +522,43 @@ func rebuild_block_visualizer() -> void:
 	if block_count == _last_visualized_block_count:
 		return
 	_last_visualized_block_count = block_count
-	for child in block_chain_row.get_children():
+	for child in block_list_vbox.get_children():
 		child.queue_free()
 	if block_chain.is_empty():
+		var empty_panel := PanelContainer.new()
+		empty_panel.add_theme_stylebox_override("panel", CyberUI.outline_panel(CyberConstants.MAGENTA))
 		var empty_label := Label.new()
-		empty_label.text = "No blocks written yet"
-		block_chain_row.add_child(empty_label)
+		empty_label.text = "No blocks validated yet"
+		CyberUI.apply_body(empty_label, CyberConstants.TEXT_GRAY, CyberConstants.BASE_FONT_SMALL)
+		empty_panel.add_child(empty_label)
+		block_list_vbox.add_child(empty_panel)
 		return
 	var start_index := maxi(0, block_chain.size() - MAX_VISIBLE_BLOCKS)
 	for i in range(start_index, block_chain.size()):
 		var block: Dictionary = block_chain[i]
+		var panel := PanelContainer.new()
+		panel.add_theme_stylebox_override("panel", CyberUI.outline_panel(CyberConstants.CYAN))
 		var label := Label.new()
 		if block["index"] == 1:
 			label.text = "Genesis -> %s" % block["hash"]
 		else:
 			label.text = "#%d %s <- %s" % [block["index"], block["hash"], block["prev"]]
-		block_chain_row.add_child(label)
-
-# ==========================================
-# LEARNING JOURNAL
-# ==========================================
-func unlock_concept(id: String) -> void:
-	if not concepts_unlocked.has(id) or concepts_unlocked[id]:
-		return
-	concepts_unlocked[id] = true
-	refresh_journal()
-	save_game()
-
-func refresh_journal() -> void:
-	var parts: PackedStringArray = []
-	for id in ["gas", "genesis_block", "smart_contract", "liquidity_pool", "dao"]:
-		var mark := "✓" if concepts_unlocked.get(id, false) else "○"
-		parts.append("%s %s" % [GameContent.CONCEPT_LABELS[id], mark])
-	journal_label.text = "Learned: " + " | ".join(parts)
+		CyberUI.apply_body(label, CyberConstants.TEXT_WHITE, CyberConstants.BASE_FONT_SMALL)
+		panel.add_child(label)
+		block_list_vbox.add_child(panel)
 
 # ==========================================
 # GLOSSARY
 # ==========================================
 func _populate_glossary() -> void:
-	glossary_label.bbcode_enabled = true
-	glossary_label.text = GameContent.build_glossary_bbcode()
+	for child in glossary_list.get_children():
+		child.queue_free()
+	var index := 0
+	for term in GameContent.GLOSSARY:
+		var entry: VBoxContainer = GlossaryEntryScene.instantiate()
+		glossary_list.add_child(entry)
+		entry.configure(term, GameContent.GLOSSARY[term], index % 2 == 0)
+		index += 1
 
 # ==========================================
 # QUIZ
@@ -388,48 +566,176 @@ func _populate_glossary() -> void:
 func show_quiz(tier: String) -> void:
 	active_quiz_tier = tier
 	quiz_blocking_input = true
+	quiz_panel.z_index = 10
 	var quiz: Dictionary = GameContent.QUIZZES[tier]
-	quiz_title_label.text = quiz["title"]
+	quiz_title_label.text = quiz["title"].to_upper()
 	quiz_question_label.text = quiz["question"]
-	quiz_feedback_label.text = ""
+	quiz_feedback_label.text = "[ Hint appears here if wrong ]"
 	for i in quiz_option_buttons.size():
+		var button = quiz_option_buttons[i]
 		if i < quiz["options"].size():
-			quiz_option_buttons[i].text = quiz["options"][i]
-			quiz_option_buttons[i].visible = true
+			button.configure(i, quiz["options"][i])
+			button.visible = true
 		else:
-			quiz_option_buttons[i].visible = false
+			button.visible = false
 	quiz_panel.visible = true
+	refresh_upgrades()
+	refresh_assessments()
 	refresh_input_locks()
 
 func hide_quiz() -> void:
 	quiz_panel.visible = false
 	active_quiz_tier = ""
 	quiz_blocking_input = false
+	refresh_upgrades()
+	refresh_assessments()
+	refresh_input_locks()
+
+# ==========================================
+# CERTIFICATION
+# ==========================================
+func is_certified(tier: String) -> bool:
+	return quiz_passed.get(tier, false)
+
+func is_quiz_unlocked(tier: String) -> bool:
+	var prereq := GameContent.get_prereq_tier(tier)
+	return prereq.is_empty() or is_certified(prereq)
+
+func get_cert_lock_state(tier: String) -> UpgradeCardBase.CertLockState:
+	if is_certified(tier):
+		return UpgradeCardBase.CertLockState.UNLOCKED
+	if not is_quiz_unlocked(tier):
+		return UpgradeCardBase.CertLockState.NEEDS_PREREQ
+	return UpgradeCardBase.CertLockState.NEEDS_AUDIT
+
+func _get_next_required_tier() -> String:
+	for tier in GameContent.QUIZ_ORDER:
+		if not is_certified(tier):
+			return tier
+	return ""
+
+func _get_assessment_card(tier: String):
+	match tier:
+		"contract":
+			return assessment_contract
+		"pool":
+			return assessment_pool
+		"dao":
+			return assessment_dao
+	return null
+
+func _build_lock_copy(tier: String, lock_state: UpgradeCardBase.CertLockState) -> Dictionary:
+	var upgrade: Dictionary = GameContent.UPGRADES[tier]
+	if lock_state == UpgradeCardBase.CertLockState.NEEDS_PREREQ:
+		var prereq := GameContent.get_prereq_tier(tier)
+		var prereq_quiz: Dictionary = GameContent.QUIZZES[prereq]
+		return {
+			"header": upgrade["title"],
+			"body": "Complete the %s first." % prereq_quiz["title"],
+		}
+	var quiz: Dictionary = GameContent.QUIZZES[tier]
+	return {
+		"header": upgrade["title"],
+		"body": 'Pass the "%s" in Academy before deploying.' % quiz["title"],
+	}
+
+func _on_audit_pressed(tier: String) -> void:
+	show_quiz(tier)
+
+func _on_go_to_academy_pressed(_tier: String) -> void:
+	_navigate_to_assessment()
+
+func _navigate_to_assessment() -> void:
+	var target_tier := _get_next_required_tier()
+	if target_tier.is_empty():
+		return
+	_switch_tab(CyberConstants.TAB_ACADEMY)
+	await get_tree().process_frame
+	var card = _get_assessment_card(target_tier)
+	if card:
+		audits_scroll.ensure_control_visible(card)
+		card.highlight()
 
 # ==========================================
 # UI REFRESH
 # ==========================================
 func refresh_user_interface():
-	refresh_currency()
+	refresh_gas_bar()
+	refresh_mining()
 	refresh_upgrades()
-	refresh_journal()
+	refresh_assessments()
 	rebuild_block_visualizer()
 	refresh_input_locks()
 
-func refresh_currency() -> void:
-	currency_label.text = "Wallet Ledger Balance: " + str(int(gas_units)) + " Gas Units\nNetwork Performance Speed: " + str(gas_per_second) + " Gas/sec"
+func refresh_gas_bar() -> void:
+	gas_bar.set_gas(gas_units)
+
+func refresh_mining() -> void:
+	mempool_label.text = (
+		"Unverified Transactions: [ %d / %d ]"
+		% [mempool_count, CyberConstants.MEMPOOL_CAPACITY]
+	)
+	write_hint.text = "Adds raw tx data (+%d Tx to Pool)" % int(gas_per_click)
+	validate_hint.text = "Requires %d tx" % CyberConstants.MEMPOOL_CAPACITY
+	var payout := _calculate_validate_payout()
+	payout_label.text = "Rewards: +%d Gas Units" % int(payout)
+	gas_rate_label.text = "Network Speed: %s Gas/sec" % gas_per_second
+	var pool_full := mempool_count >= CyberConstants.MEMPOOL_CAPACITY
+	button_validate.disabled = quiz_blocking_input or not pool_full
+	button_write.disabled = quiz_blocking_input or pool_full
 
 func refresh_upgrades() -> void:
-	contract_button.text = "Deploy Smart Contract [Lvl " + str(count_contract) + "]\nCost: " + str(cost_contract) + " Gas | Provides +" + str(yield_contract) + " Gas/sec\n(Automates execution logic safely without middleware)"
-	pool_button.text = "Setup Liquidity Pool [Lvl " + str(count_pool) + "]\nCost: " + str(cost_pool) + " Gas | Provides +" + str(yield_pool) + " Gas/sec\n(Injects deeper automated capital funding mechanics)"
-	dao_button.text = "Establish DAO Governance [Lvl " + str(count_dao) + "]\nCost: " + str(cost_dao) + " Gas | Provides +" + str(yield_dao) + " Gas/sec\n(Unlocks native decentralized stakeholder vote weighting)"
+	var input_blocked := quiz_blocking_input
+	_configure_card(
+		card_contract,
+		"contract",
+		count_contract,
+		cost_contract,
+		yield_contract,
+		input_blocked,
+	)
+	_configure_card(card_pool, "pool", count_pool, cost_pool, yield_pool, input_blocked)
+	_configure_card(card_dao, "dao", count_dao, cost_dao, yield_dao, input_blocked)
+
+func refresh_assessments() -> void:
+	_configure_assessment(assessment_contract, "contract")
+	_configure_assessment(assessment_pool, "pool")
+	_configure_assessment(assessment_dao, "dao")
+
+func _configure_assessment(card, tier: String) -> void:
+	var def: Dictionary = GameContent.UPGRADES[tier]
+	var quiz: Dictionary = GameContent.QUIZZES[tier]
+	var lock_state := get_cert_lock_state(tier)
+	card.configure(tier, def["title"], quiz["title"], def["description"], lock_state)
+
+func _configure_card(
+	card,
+	tier: String,
+	level: int,
+	cost: float,
+	yield_amount: float,
+	input_blocked: bool,
+) -> void:
+	var def: Dictionary = GameContent.UPGRADES[tier]
+	var lock_state := get_cert_lock_state(tier)
+	var lock_copy := _build_lock_copy(tier, lock_state)
+	card.configure(
+		tier,
+		def["title"],
+		level,
+		def["description"],
+		"+%s GAS/SEC" % int(yield_amount),
+		cost,
+		gas_units >= cost,
+		input_blocked,
+		lock_state,
+		lock_copy["header"],
+		lock_copy["body"],
+	)
 
 func refresh_input_locks() -> void:
 	var blocked := quiz_blocking_input
-	button_clicker.disabled = blocked
-	button_learn.disabled = blocked
-	contract_button.disabled = blocked or gas_units < cost_contract
-	pool_button.disabled = blocked or gas_units < cost_pool
-	dao_button.disabled = blocked or gas_units < cost_dao
+	bottom_nav.mouse_filter = Control.MOUSE_FILTER_STOP if blocked else Control.MOUSE_FILTER_PASS
+	academy_sub_nav.set_blocked(blocked)
 	for button in quiz_option_buttons:
 		button.disabled = not quiz_panel.visible

@@ -1,0 +1,52 @@
+[gd_scene load_steps=2 format=3 uid="uid://cyber_assessment_card"]
+
+[ext_resource type="Script" path="res://ui/components/assessment_card.gd" id="1_script"]
+
+[node name="AssessmentCard" type="PanelContainer"]
+custom_minimum_size = Vector2(0, 170)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+script = ExtResource("1_script")
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="HeaderBar" type="PanelContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="HeaderHBox" type="HBoxContainer" parent="VBox/HeaderBar"]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="VBox/HeaderBar/HeaderHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "TITLE"
+
+[node name="Body" type="VBoxContainer" parent="VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="DescriptionLabel" type="Label" parent="VBox/Body"]
+layout_mode = 2
+autowrap_mode = 3
+text = "Description"
+
+[node name="AuditLabel" type="Label" parent="VBox/Body"]
+layout_mode = 2
+text = "Audit"
+
+[node name="Footer" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="StatusLabel" type="Label" parent="VBox/Footer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "○ AVAILABLE"
+
+[node name="AuditButton" type="Button" parent="VBox/Footer"]
+custom_minimum_size = Vector2(120, 36)
+layout_mode = 2
+text = "TAKE AUDIT"

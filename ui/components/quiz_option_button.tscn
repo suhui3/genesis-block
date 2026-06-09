@@ -1,0 +1,34 @@
+[gd_scene load_steps=2 format=3 uid="uid://cyber_quiz_option"]
+
+[ext_resource type="Script" path="res://ui/components/quiz_option_button.gd" id="1_script"]
+
+[node name="QuizOptionButton" type="Button"]
+custom_minimum_size = Vector2(0, 84)
+script = ExtResource("1_script")
+
+[node name="HBox" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 12
+
+[node name="NumberBox" type="PanelContainer" parent="HBox"]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 2
+
+[node name="NumberLabel" type="Label" parent="HBox/NumberBox"]
+layout_mode = 2
+text = "1"
+
+[node name="AnswerLabel" type="Label" parent="HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Answer"

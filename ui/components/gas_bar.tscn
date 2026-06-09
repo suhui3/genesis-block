@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://dvqon57djvkly"]
+
+[ext_resource type="Script" uid="uid://dnmovgxkawls1" path="res://ui/components/gas_bar.gd" id="1_script"]
+
+[node name="GasBar" type="PanelContainer" unique_id=322021318]
+custom_minimum_size = Vector2(0, 52)
+script = ExtResource("1_script")
+
+[node name="HBox" type="HBoxContainer" parent="." unique_id=1147792668]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="CaptionLabel" type="Label" parent="HBox" unique_id=442682133]
+layout_mode = 2
+text = "AVAILABLE GAS"
+
+[node name="AmountLabel" type="Label" parent="HBox" unique_id=849041336]
+layout_mode = 2
+text = "0"

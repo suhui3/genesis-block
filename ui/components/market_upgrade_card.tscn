@@ -1,0 +1,75 @@
+[gd_scene load_steps=2 format=3 uid="uid://cyber_market_card"]
+
+[ext_resource type="Script" path="res://ui/components/market_upgrade_card.gd" id="1_script"]
+
+[node name="MarketUpgradeCard" type="PanelContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+script = ExtResource("1_script")
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="HeaderBar" type="PanelContainer" parent="VBox"]
+layout_mode = 2
+
+[node name="HeaderHBox" type="HBoxContainer" parent="VBox/HeaderBar"]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="VBox/HeaderBar/HeaderHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 3
+text = "TITLE"
+
+[node name="LevelLabel" type="Label" parent="VBox/HeaderBar/HeaderHBox"]
+layout_mode = 2
+text = "[Lvl 0]"
+
+[node name="NormalBody" type="VBoxContainer" parent="VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="DescriptionLabel" type="Label" parent="VBox/NormalBody"]
+layout_mode = 2
+autowrap_mode = 3
+text = "Description"
+
+[node name="EffectLabel" type="Label" parent="VBox/NormalBody"]
+layout_mode = 2
+text = "EFFECT"
+
+[node name="NormalFooter" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="CostLabel" type="Label" parent="VBox/NormalFooter"]
+layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 3
+text = "Cost"
+
+[node name="UpgradeButton" type="Button" parent="VBox/NormalFooter"]
+custom_minimum_size = Vector2(100, 36)
+layout_mode = 2
+text = "UPGRADE"
+
+[node name="LockSection" type="VBoxContainer" parent="VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="LockHeaderLabel" type="Label" parent="VBox/LockSection"]
+layout_mode = 2
+autowrap_mode = 3
+text = "LOCKED"
+
+[node name="LockBodyLabel" type="Label" parent="VBox/LockSection"]
+layout_mode = 2
+autowrap_mode = 3
+text = "Complete the audit first."
+
+[node name="LockCtaButton" type="Button" parent="VBox/LockSection"]
+layout_mode = 2
+text = "TAKE AUDIT"
