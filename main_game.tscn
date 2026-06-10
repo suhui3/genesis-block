@@ -16,6 +16,7 @@
 [ext_resource type="PackedScene" path="res://ui/components/segmented_tab_bar.tscn" id="11_subnav"]
 [ext_resource type="Texture2D" uid="uid://bn2fv38pcyheu" path="res://ui/textures/assets/quiz_host.png" id="12_krmtw"]
 [ext_resource type="PackedScene" path="res://ui/components/quiz_option_button.tscn" id="12_quiz_opt"]
+[ext_resource type="PackedScene" path="res://ui/components/tutorial_coach_overlay.tscn" id="13_tutorial"]
 
 [node name="MainGame" type="Control" unique_id=2111286446]
 layout_mode = 3
@@ -298,6 +299,16 @@ theme_override_constants/separation = 14
 
 [node name="BottomNavBar" parent="GameplayShell/RootVBox" unique_id=1447322207 instance=ExtResource("10_nav")]
 layout_mode = 2
+
+[node name="TutorialCoachOverlay" parent="." instance=ExtResource("13_tutorial")]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 
 [node name="QuizPanel" type="Control" parent="." unique_id=565184804]
 visible = false
