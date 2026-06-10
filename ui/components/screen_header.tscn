@@ -6,9 +6,33 @@
 theme_override_constants/separation = 6
 script = ExtResource("1_script")
 
-[node name="TitleLabel" type="Label" parent="."]
+[node name="HeaderRow" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="LeftSlot" type="Control" parent="HeaderRow"]
+custom_minimum_size = Vector2(44, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TitleCenter" type="CenterContainer" parent="HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.0
+
+[node name="TitleLabel" type="Label" parent="HeaderRow/TitleCenter"]
 layout_mode = 2
 text = "MARKET"
+
+[node name="RightSlot" type="HBoxContainer" parent="HeaderRow"]
+custom_minimum_size = Vector2(44, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 2
+
+[node name="SettingsButton" type="Button" parent="HeaderRow/RightSlot"]
+layout_mode = 2
+text = "⚙"
 
 [node name="Underline" type="ColorRect" parent="."]
 layout_mode = 2

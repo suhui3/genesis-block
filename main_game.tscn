@@ -17,6 +17,7 @@
 [ext_resource type="Texture2D" uid="uid://bn2fv38pcyheu" path="res://ui/textures/assets/quiz_host.png" id="12_krmtw"]
 [ext_resource type="PackedScene" path="res://ui/components/quiz_option_button.tscn" id="12_quiz_opt"]
 [ext_resource type="PackedScene" path="res://ui/components/tutorial_coach_overlay.tscn" id="13_tutorial"]
+[ext_resource type="PackedScene" path="res://ui/components/settings_panel.tscn" id="14_settings"]
 
 [node name="MainGame" type="Control" unique_id=2111286446]
 layout_mode = 3
@@ -80,6 +81,18 @@ layout_mode = 2
 texture_normal = ExtResource("6_start_normal")
 texture_pressed = ExtResource("7_start_pressed")
 texture_hover = ExtResource("6_start_normal")
+
+[node name="SplashSettingsButton" type="Button" parent="SplashScreen"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -60.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = 60.0
+grow_horizontal = 0
+text = "⚙"
 
 [node name="GameplayShell" type="Control" parent="." unique_id=1928607667]
 visible = false
@@ -310,6 +323,17 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
+[node name="SettingsPanel" parent="." instance=ExtResource("14_settings")]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+z_index = 20
+
 [node name="QuizPanel" type="Control" parent="." unique_id=565184804]
 visible = false
 layout_mode = 1
@@ -520,6 +544,7 @@ size_flags_vertical = 3
 
 [connection signal="pressed" from="SplashScreen/ButtonStack/ButtonContinue" to="." method="_on_continue_button_pressed"]
 [connection signal="pressed" from="SplashScreen/ButtonStack/ButtonStart" to="." method="_on_start_button_pressed"]
+[connection signal="pressed" from="SplashScreen/SplashSettingsButton" to="." method="_on_settings_button_pressed"]
 [connection signal="pressed" from="GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MiningTab/MiningActions/WriteColumn/ButtonWrite" to="." method="_on_write_button_pressed"]
 [connection signal="pressed" from="GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MiningTab/MiningActions/ValidateColumn/ButtonValidate" to="." method="_on_validate_button_pressed"]
 [connection signal="pressed" from="QuizPanel/QuizBorder/QuizVBox/OptionsVBox/ButtonQuizOption0" to="." method="_on_quiz_option_0_pressed"]
