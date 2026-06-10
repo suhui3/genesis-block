@@ -36,6 +36,7 @@ func _ready() -> void:
 	)
 	CyberUI.apply_button_font(audit_button, CyberConstants.BASE_FONT_CAPTION, true)
 	audit_button.pressed.connect(func(): audit_pressed.emit(_tier))
+	CyberUI.wire_button_sound(audit_button, GameAudio.play_ui_click, "ui_click")
 
 func configure(
 	tier: String,

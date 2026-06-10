@@ -29,6 +29,7 @@ func _build_tabs() -> void:
 		btn.pressed.connect(_on_tab_pressed.bind(i))
 		btn.button_down.connect(_on_tab_press_state.bind(i, true))
 		btn.button_up.connect(_on_tab_press_state.bind(i, false))
+		CyberUI.wire_button_sound(btn, GameAudio.play_ui_click, "ui_click")
 
 		var content := VBoxContainer.new()
 		content.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)

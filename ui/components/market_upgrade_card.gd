@@ -59,6 +59,8 @@ func _ready() -> void:
 	lock_section.visible = false
 	_apply_upgrade_button_style(true)
 	_apply_lock_button_style()
+	CyberUI.wire_button_sound(upgrade_button, GameAudio.play_upgrade, "upgrade")
+	CyberUI.wire_button_sound(lock_cta_button, GameAudio.play_ui_click, "ui_click")
 
 func configure(
 	tier: String,

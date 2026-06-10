@@ -143,3 +143,12 @@ static func set_separation(container: BoxContainer, base_separation: int) -> voi
 
 static func format_gas(amount: float) -> String:
 	return "%s" % int(amount)
+
+static func wire_button_sound(button: BaseButton, callback: Callable, wire_id: String = "default") -> void:
+	if Engine.is_editor_hint():
+		return
+	var meta_key := "sound_feedback_%s" % wire_id
+	if button.has_meta(meta_key):
+		return
+	button.set_meta(meta_key, true)
+	button.button_down.connect(callback)

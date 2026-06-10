@@ -49,6 +49,7 @@ func _rebuild_segments() -> void:
 		button.size_flags_vertical = Control.SIZE_EXPAND_FILL
 		button.text = _labels[i]
 		button.pressed.connect(_on_segment_pressed.bind(i))
+		CyberUI.wire_button_sound(button, GameAudio.play_ui_click, "ui_click")
 		CyberUI.apply_button_font(button, CyberConstants.BASE_FONT_TAB, true)
 		segments_row.add_child(button)
 		_buttons.append(button)

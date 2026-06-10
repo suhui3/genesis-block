@@ -162,6 +162,8 @@ func _setup_cyber_styles() -> void:
 	CyberUI.apply_title(mempool_label, CyberConstants.CYAN, CyberConstants.BASE_FONT_BODY_LG)
 	_style_mining_button(button_write, true)
 	_style_mining_button(button_validate, false)
+	CyberUI.wire_button_sound(button_write, GameAudio.play_ui_click, "ui_click")
+	CyberUI.wire_button_sound(button_validate, GameAudio.play_mining_validate, "mining_validate")
 	CyberUI.apply_italic(write_hint, CyberConstants.TEXT_DIM, CyberConstants.BASE_FONT_CAPTION)
 	CyberUI.apply_italic(validate_hint, CyberConstants.TEXT_DIM, CyberConstants.BASE_FONT_CAPTION)
 	CyberUI.apply_title(payout_label, CyberConstants.CYAN, CyberConstants.BASE_FONT_SMALL)
@@ -300,6 +302,8 @@ func _setup_crisis_styles() -> void:
 	crisis_effect_hint_panel.add_theme_stylebox_override("panel", hint_box)
 	CyberUI.apply_italic(crisis_effect_hint_label, CyberConstants.MAGENTA, CyberConstants.BASE_FONT_SMALL)
 	crisis_effect_hint_label.text = "Choose a response to restore network stability."
+	for button in crisis_option_buttons:
+		CyberUI.wire_button_sound(button, GameAudio.play_ui_click, "ui_click")
 
 func _sync_crisis_layout() -> void:
 	if not crisis_scroll or not crisis_stack:
@@ -583,11 +587,13 @@ func _on_quiz_option_pressed(option_index: int) -> void:
 		return
 	var quiz: Dictionary = GameContent.QUIZZES[active_quiz_tier]
 	if option_index == quiz["correct_index"]:
+		GameAudio.play_correct_answer()
 		quiz_passed[active_quiz_tier] = true
 		hide_quiz()
 		refresh_user_interface()
 		save_game()
 	else:
+		GameAudio.play_wrong_answer()
 		quiz_feedback_label.text = quiz["explain_wrong"]
 
 func _on_quiz_option_0_pressed() -> void:

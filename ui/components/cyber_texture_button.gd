@@ -58,6 +58,8 @@ func _on_button_down() -> void:
 	if disabled:
 		return
 	modulate = MODULATE_PRESSED
+	if not Engine.is_editor_hint():
+		GameAudio.play_ui_click()
 
 func _on_button_up() -> void:
 	if disabled:
