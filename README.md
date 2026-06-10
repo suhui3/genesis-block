@@ -332,9 +332,3 @@ Configure export presets in Godot (**Project → Export**). This repo does not s
 - Renderer: **GL Compatibility** (mobile-friendly)
 - Main scene UID: `uid://bm8hvxl2rtn20`
 - Handheld orientation: portrait
-
----
-
-## License
-
-See repository ownership and license terms from the project maintainer. If no license file is present, assume all rights reserved unless stated otherwise.
