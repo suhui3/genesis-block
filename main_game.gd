@@ -59,6 +59,7 @@ var _active_academy_subtab: int = CyberConstants.ACADEMY_SUBTAB_AUDITS
 @onready var splash_screen = $SplashScreen
 @onready var button_continue = $SplashScreen/ButtonStack/ButtonContinue
 @onready var button_start = $SplashScreen/ButtonStack/ButtonStart
+@onready var splash_settings_button = $SplashScreen/SplashSettingsButton
 @onready var gameplay_shell = $GameplayShell
 @onready var screen_header = $GameplayShell/RootVBox/ContentMargin/ChromeVBox/ScreenHeader
 @onready var gas_bar = $GameplayShell/RootVBox/ContentMargin/ChromeVBox/GasBar
@@ -133,6 +134,7 @@ var _active_academy_subtab: int = CyberConstants.ACADEMY_SUBTAB_AUDITS
 	$CrisisPanel/CrisisMargin/CrisisScroll/CrisisStack/CrisisBorder/CrisisVBox/OptionsVBox/ButtonCrisisOptionB,
 ]
 @onready var tutorial_coach_overlay = $TutorialCoachOverlay
+@onready var settings_panel = $SettingsPanel
 
 enum TutorialStep {
 	WRITE,
@@ -162,8 +164,10 @@ var _pending_tutorial: bool = false
 func _ready():
 	quiz_panel.visible = false
 	crisis_panel.visible = false
+	settings_panel.visible = false
 	tutorial_coach_overlay.hide_overlay()
 	_setup_cyber_styles()
+	_setup_settings_ui()
 	_populate_glossary()
 	_connect_market_cards()
 	_connect_assessment_cards()
@@ -173,6 +177,11 @@ func _ready():
 	bottom_nav.tab_selected.connect(_on_tab_selected)
 	tutorial_coach_overlay.skipped.connect(_on_tutorial_skipped)
 	tutorial_coach_overlay.continued.connect(_on_tutorial_continued)
+	screen_header.settings_pressed.connect(_on_settings_button_pressed)
+	settings_panel.closed.connect(_on_settings_closed)
+	settings_panel.replay_tutorial_requested.connect(_on_settings_replay_tutorial)
+	settings_panel.quit_to_menu_requested.connect(_on_settings_quit_to_menu)
+	settings_panel.reset_game_requested.connect(_on_settings_reset_game)
 	load_game()
 	_update_splash_buttons()
 	splash_screen.visible = true
@@ -352,8 +361,75 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		save_game()
 
+func _setup_settings_ui() -> void:
+	splash_settings_button.text = "⚙"
+	splash_settings_button.flat = true
+	splash_settings_button.focus_mode = Control.FOCUS_NONE
+	CyberUI.apply_button_states(splash_settings_button, CyberConstants.CYAN, true)
+	CyberUI.apply_button_font(splash_settings_button, CyberConstants.BASE_FONT_TITLE)
+	CyberUI.wire_button_sound(splash_settings_button, GameAudio.play_ui_click, "splash_settings")
+
 func _update_splash_buttons() -> void:
 	button_continue.visible = _has_save and game_started
+
+func _can_open_settings() -> bool:
+	if settings_panel.visible:
+		return false
+	if quiz_panel.visible or crisis_panel.visible:
+		return false
+	if _tutorial_active:
+		return false
+	return true
+
+func _on_settings_button_pressed() -> void:
+	if not _can_open_settings():
+		return
+	settings_panel.show_settings()
+	_sync_overlay_blocking()
+	refresh_input_locks()
+
+func _on_settings_closed() -> void:
+	_sync_overlay_blocking()
+	refresh_input_locks()
+
+func _on_settings_replay_tutorial() -> void:
+	_sync_overlay_blocking()
+	refresh_input_locks()
+	_begin_tutorial()
+
+func _on_settings_quit_to_menu() -> void:
+	_cancel_tutorial_if_active()
+	save_game()
+	_return_to_splash()
+
+func _on_settings_reset_game() -> void:
+	_cancel_tutorial_if_active()
+	if FileAccess.file_exists(SAVE_PATH):
+		DirAccess.remove_absolute(SAVE_PATH)
+	_has_save = false
+	reset_game()
+	_return_to_splash()
+
+func _return_to_splash() -> void:
+	_sync_overlay_blocking()
+	gameplay_shell.visible = false
+	splash_screen.visible = true
+	_update_splash_buttons()
+	refresh_input_locks()
+
+func _cancel_tutorial_if_active() -> void:
+	if not _tutorial_active:
+		return
+	tutorial_coach_overlay.hide_overlay()
+	_tutorial_active = false
+	refresh_user_interface()
+
+func _sync_overlay_blocking() -> void:
+	overlay_blocking_input = (
+		quiz_panel.visible
+		or crisis_panel.visible
+		or settings_panel.visible
+	)
 
 func _on_continue_button_pressed() -> void:
 	_enter_gameplay(true)
@@ -759,8 +835,7 @@ func show_quiz(tier: String) -> void:
 func hide_quiz() -> void:
 	quiz_panel.visible = false
 	active_quiz_tier = ""
-	if not crisis_panel.visible:
-		overlay_blocking_input = false
+	_sync_overlay_blocking()
 	refresh_upgrades()
 	refresh_assessments()
 	refresh_input_locks()
@@ -799,8 +874,7 @@ func hide_crisis_popup() -> void:
 		resolved_crises[active_crisis_id] = true
 	crisis_panel.visible = false
 	active_crisis_id = ""
-	if not quiz_panel.visible:
-		overlay_blocking_input = false
+	_sync_overlay_blocking()
 	refresh_upgrades()
 	refresh_input_locks()
 
