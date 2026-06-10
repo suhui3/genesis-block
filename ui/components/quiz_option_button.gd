@@ -27,23 +27,25 @@ func _ready() -> void:
 	answer_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	answer_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	hbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	button_down.connect(_on_press_state_changed.bind(true))
-	button_up.connect(_on_press_state_changed.bind(false))
+	button_down.connect(_refresh_press_visual)
+	button_up.connect(_refresh_press_visual)
+	mouse_exited.connect(_refresh_press_visual)
+	pressed.connect(func(): call_deferred("_refresh_press_visual"))
 
 func configure(index: int, text: String, badge: String = "") -> void:
 	number_label.text = badge if not badge.is_empty() else str(index + 1)
 	answer_label.text = text
+	_refresh_press_visual()
 
 func _apply_style() -> void:
 	CyberUI.apply_button_states(self, CyberConstants.CYAN, true, CyberConstants.TEXT_WHITE)
 
-func _on_press_state_changed(pressed: bool) -> void:
-	if disabled:
-		return
-	_set_label_colors(CyberUI.pressed_text_color() if pressed else CyberConstants.TEXT_WHITE)
+func _refresh_press_visual() -> void:
+	var inverted := is_pressed() and not disabled
+	_set_label_colors(CyberUI.pressed_text_color() if inverted else CyberConstants.TEXT_WHITE)
 	number_box.add_theme_stylebox_override(
 		"panel",
-		_pressed_number_panel if pressed else _normal_number_panel,
+		_pressed_number_panel if inverted else _normal_number_panel,
 	)
 
 func _set_label_colors(color: Color) -> void:
