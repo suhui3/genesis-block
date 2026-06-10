@@ -97,6 +97,21 @@ func _on_tab_press_state(tab_index: int, pressed: bool) -> void:
 		return
 	_apply_tab_content_colors(entry, tab_index == _active_tab, pressed)
 
+func set_blocked(blocked: bool) -> void:
+	for entry in _tab_entries:
+		entry.button.disabled = blocked
+
+func set_tabs_blocked_except(tab_index: int) -> void:
+	for i in _tab_entries.size():
+		_tab_entries[i].button.disabled = i != tab_index
+
+func get_tab_button(tab_index: int) -> Button:
+	if tab_index < 0 or tab_index >= _tab_entries.size():
+		return null
+	return _tab_entries[tab_index].button
+
 func _on_tab_pressed(tab_index: int) -> void:
+	if _tab_entries[tab_index].button.disabled:
+		return
 	set_active_tab(tab_index)
 	tab_selected.emit(tab_index)

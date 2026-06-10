@@ -1,0 +1,62 @@
+[gd_scene load_steps=2 format=3 uid="uid://tutorial_coach_overlay"]
+
+[ext_resource type="Script" path="res://ui/components/tutorial_coach_overlay.gd" id="1_overlay"]
+
+[node name="TutorialCoachOverlay" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+z_index = 5
+script = ExtResource("1_overlay")
+
+[node name="DimTop" type="ColorRect" parent="."]
+layout_mode = 0
+mouse_filter = 0
+
+[node name="DimLeft" type="ColorRect" parent="."]
+layout_mode = 0
+mouse_filter = 0
+
+[node name="DimRight" type="ColorRect" parent="."]
+layout_mode = 0
+mouse_filter = 0
+
+[node name="DimBottom" type="ColorRect" parent="."]
+layout_mode = 0
+mouse_filter = 0
+
+[node name="HighlightRing" type="PanelContainer" parent="."]
+layout_mode = 0
+mouse_filter = 2
+
+[node name="TooltipPanel" type="PanelContainer" parent="."]
+layout_mode = 0
+mouse_filter = 0
+
+[node name="TooltipVBox" type="VBoxContainer" parent="TooltipPanel"]
+layout_mode = 2
+
+[node name="TooltipTitle" type="Label" parent="TooltipPanel/TooltipVBox"]
+layout_mode = 2
+text = "Title"
+autowrap_mode = 3
+
+[node name="TooltipBody" type="Label" parent="TooltipPanel/TooltipVBox"]
+layout_mode = 2
+text = "Body"
+autowrap_mode = 3
+
+[node name="NextButton" type="Button" parent="TooltipPanel/TooltipVBox"]
+visible = false
+layout_mode = 2
+text = "Next"
+
+[node name="SkipButton" type="Button" parent="."]
+layout_mode = 0
+offset_right = 48.0
+offset_bottom = 24.0
+text = "Skip"

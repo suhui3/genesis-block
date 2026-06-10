@@ -35,6 +35,16 @@ func set_blocked(blocked: bool) -> void:
 	for button in _buttons:
 		button.disabled = blocked
 
+func set_segments_blocked_except(tab_index: int) -> void:
+	mouse_filter = Control.MOUSE_FILTER_PASS
+	for i in _buttons.size():
+		_buttons[i].disabled = i != tab_index
+
+func get_segment_button(tab_index: int) -> Button:
+	if tab_index < 0 or tab_index >= _buttons.size():
+		return null
+	return _buttons[tab_index]
+
 func _rebuild_segments() -> void:
 	for child in segments_row.get_children():
 		child.queue_free()
@@ -72,6 +82,8 @@ func _style_segment(button: Button, active: bool) -> void:
 	button.add_theme_color_override("font_disabled_color", CyberConstants.TEXT_DIM)
 
 func _on_segment_pressed(tab_index: int) -> void:
+	if _buttons[tab_index].disabled:
+		return
 	if tab_index == _active_tab:
 		return
 	set_active_tab(tab_index)

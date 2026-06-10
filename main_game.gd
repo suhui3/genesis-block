@@ -64,6 +64,7 @@ var _active_academy_subtab: int = CyberConstants.ACADEMY_SUBTAB_AUDITS
 @onready var gas_bar = $GameplayShell/RootVBox/ContentMargin/ChromeVBox/GasBar
 @onready var bottom_nav = $GameplayShell/RootVBox/BottomNavBar
 @onready var nodes_tab = $GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/NodesTab
+@onready var nodes_scroll = $GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/NodesTab/NodesScroll
 @onready var block_list_vbox = $GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/NodesTab/NodesScroll/BlockListVBox
 @onready var mining_tab = $GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MiningTab
 @onready var mempool_panel = $GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MiningTab/MempoolPanel
@@ -131,11 +132,29 @@ var _active_academy_subtab: int = CyberConstants.ACADEMY_SUBTAB_AUDITS
 	$CrisisPanel/CrisisMargin/CrisisScroll/CrisisStack/CrisisBorder/CrisisVBox/OptionsVBox/ButtonCrisisOptionA,
 	$CrisisPanel/CrisisMargin/CrisisScroll/CrisisStack/CrisisBorder/CrisisVBox/OptionsVBox/ButtonCrisisOptionB,
 ]
+@onready var tutorial_coach_overlay = $TutorialCoachOverlay
+
+enum TutorialStep {
+	WRITE,
+	VALIDATE,
+	NODES_NAV,
+	NODES_VIEW,
+	ACADEMY_NAV,
+	ACADEMY_AUDITS,
+	ACADEMY_GLOSSARY_NAV,
+	ACADEMY_GLOSSARY,
+	MARKET_NAV,
+	MARKET_UPGRADE,
+}
 
 var game_timer: Timer
 var game_started: bool = false
+var tutorial_completed: bool = false
 var _has_save: bool = false
 var _last_visualized_block_count: int = -1
+var _tutorial_active: bool = false
+var _tutorial_step: TutorialStep = TutorialStep.WRITE
+var _pending_tutorial: bool = false
 
 # ==========================================
 # INITIALIZATION LIFECYCLE
@@ -143,6 +162,7 @@ var _last_visualized_block_count: int = -1
 func _ready():
 	quiz_panel.visible = false
 	crisis_panel.visible = false
+	tutorial_coach_overlay.hide_overlay()
 	_setup_cyber_styles()
 	_populate_glossary()
 	_connect_market_cards()
@@ -151,6 +171,8 @@ func _ready():
 	academy_sub_nav.tab_selected.connect(_on_academy_subtab_selected)
 	_switch_academy_subtab(CyberConstants.ACADEMY_SUBTAB_AUDITS)
 	bottom_nav.tab_selected.connect(_on_tab_selected)
+	tutorial_coach_overlay.skipped.connect(_on_tutorial_skipped)
+	tutorial_coach_overlay.continued.connect(_on_tutorial_continued)
 	load_game()
 	_update_splash_buttons()
 	splash_screen.visible = true
@@ -338,7 +360,9 @@ func _on_continue_button_pressed() -> void:
 
 func _on_start_button_pressed() -> void:
 	reset_game()
+	tutorial_completed = false
 	game_started = true
+	_pending_tutorial = true
 	_enter_gameplay(true)
 
 func reset_game() -> void:
@@ -386,9 +410,22 @@ func _enter_gameplay(from_splash: bool) -> void:
 		show_crisis_popup(active_crisis_id)
 	if from_splash:
 		save_game()
+	if _pending_tutorial and not tutorial_completed:
+		_pending_tutorial = false
+		_begin_tutorial_after_layout()
+
+func _begin_tutorial_after_layout() -> void:
+	await get_tree().process_frame
+	_begin_tutorial()
 
 func _on_tab_selected(tab_index: int) -> void:
 	if overlay_blocking_input:
+		return
+	if _tutorial_active:
+		if not _tutorial_allows_tab(tab_index):
+			return
+		_switch_tab(tab_index)
+		_on_tutorial_tab_reached(tab_index)
 		return
 	_switch_tab(tab_index)
 
@@ -405,6 +442,14 @@ func _switch_tab(tab_index: int) -> void:
 
 func _on_academy_subtab_selected(subtab_index: int) -> void:
 	if overlay_blocking_input:
+		return
+	if _tutorial_active:
+		if (
+			_tutorial_step == TutorialStep.ACADEMY_GLOSSARY_NAV
+			and subtab_index == CyberConstants.ACADEMY_SUBTAB_GLOSSARY
+		):
+			_switch_academy_subtab(subtab_index)
+			_advance_tutorial_to_academy_glossary()
 		return
 	_switch_academy_subtab(subtab_index)
 
@@ -448,6 +493,7 @@ func save_game() -> void:
 		"passive_paused": _passive_paused,
 		"validate_cooldown_until": _validate_cooldown_until,
 		"debuff_expires_at": _debuff_expires_at,
+		"tutorial_completed": tutorial_completed,
 	}
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file:
@@ -488,6 +534,7 @@ func load_game() -> void:
 	_passive_paused = bool(data.get("passive_paused", false))
 	_validate_cooldown_until = float(data.get("validate_cooldown_until", 0.0))
 	_debuff_expires_at = float(data.get("debuff_expires_at", 0.0))
+	tutorial_completed = bool(data.get("tutorial_completed", tutorial_completed))
 	GameContent.backfill_resolved_crises(block_count, resolved_crises, active_crisis_id)
 	_restore_debuff_timer()
 
@@ -509,15 +556,22 @@ func _merge_dictionary(target: Dictionary, source: Variant) -> void:
 func _on_write_button_pressed():
 	if overlay_blocking_input:
 		return
+	if _tutorial_active and _tutorial_step != TutorialStep.WRITE:
+		return
 	if mempool_count >= CyberConstants.MEMPOOL_CAPACITY:
 		return
 	var added := int(gas_per_click)
 	mempool_count = mini(mempool_count + added, CyberConstants.MEMPOOL_CAPACITY)
 	refresh_user_interface()
 	save_game()
+	if _tutorial_active and _tutorial_step == TutorialStep.WRITE:
+		if mempool_count >= CyberConstants.MEMPOOL_CAPACITY:
+			_advance_tutorial_to_validate()
 
 func _on_validate_button_pressed():
 	if overlay_blocking_input:
+		return
+	if _tutorial_active and _tutorial_step != TutorialStep.VALIDATE:
 		return
 	if Time.get_ticks_msec() < _validate_cooldown_until:
 		return
@@ -529,6 +583,8 @@ func _on_validate_button_pressed():
 	append_block()
 	refresh_user_interface()
 	save_game()
+	if _tutorial_active and _tutorial_step == TutorialStep.VALIDATE:
+		_advance_tutorial_to_nodes_nav()
 
 func _calculate_validate_payout() -> float:
 	return (
@@ -929,6 +985,8 @@ func _build_lock_copy(tier: String, lock_state: UpgradeCardBase.CertLockState) -
 	}
 
 func _on_audit_pressed(tier: String) -> void:
+	if _tutorial_active:
+		return
 	show_quiz(tier)
 
 func _on_go_to_academy_pressed(_tier: String) -> void:
@@ -986,11 +1044,16 @@ func refresh_mining() -> void:
 	gas_rate_label.text = rate_text
 	var pool_full := mempool_count >= CyberConstants.MEMPOOL_CAPACITY
 	var validate_locked := cooldown_left > 0
-	button_validate.disabled = overlay_blocking_input or not pool_full or validate_locked
-	button_write.disabled = overlay_blocking_input or pool_full
+	var write_blocked := overlay_blocking_input or pool_full
+	var validate_blocked := overlay_blocking_input or not pool_full or validate_locked
+	if _tutorial_active:
+		write_blocked = _tutorial_step != TutorialStep.WRITE or pool_full
+		validate_blocked = _tutorial_step != TutorialStep.VALIDATE or not pool_full or validate_locked
+	button_validate.disabled = validate_blocked
+	button_write.disabled = write_blocked
 
 func refresh_upgrades() -> void:
-	var input_blocked := overlay_blocking_input
+	var input_blocked := overlay_blocking_input or _tutorial_active
 	_configure_card(
 		card_contract,
 		"contract",
@@ -1012,6 +1075,8 @@ func _configure_assessment(card, tier: String) -> void:
 	var quiz: Dictionary = GameContent.QUIZZES[tier]
 	var lock_state := get_cert_lock_state(tier)
 	card.configure(tier, def["title"], quiz["title"], def["description"], lock_state)
+	if _tutorial_active and card.audit_button.visible:
+		card.audit_button.disabled = true
 
 func _configure_card(
 	card,
@@ -1039,9 +1104,14 @@ func _configure_card(
 	)
 
 func refresh_input_locks() -> void:
-	var blocked := overlay_blocking_input
-	bottom_nav.mouse_filter = Control.MOUSE_FILTER_STOP if blocked else Control.MOUSE_FILTER_PASS
-	academy_sub_nav.set_blocked(blocked)
+	if overlay_blocking_input:
+		bottom_nav.set_blocked(true)
+		academy_sub_nav.set_blocked(true)
+	elif _tutorial_active:
+		_apply_tutorial_nav_locks()
+	else:
+		bottom_nav.set_blocked(false)
+		academy_sub_nav.set_blocked(false)
 	for button in quiz_option_buttons:
 		button.disabled = not quiz_panel.visible
 	if crisis_panel.visible and not active_crisis_id.is_empty():
@@ -1052,3 +1122,169 @@ func refresh_input_locks() -> void:
 	elif not crisis_panel.visible:
 		for button in crisis_option_buttons:
 			button.disabled = true
+
+# ==========================================
+# FIRST-MINUTE TUTORIAL
+# ==========================================
+func _begin_tutorial() -> void:
+	_tutorial_active = true
+	_tutorial_step = TutorialStep.WRITE
+	_switch_tab(CyberConstants.TAB_MINING)
+	refresh_user_interface()
+	tutorial_coach_overlay.show_step(
+		button_write,
+		"Add Transactions",
+		(
+			"Miners collect pending transfers. Tap this button %d times to fill the pool."
+			% CyberConstants.MEMPOOL_CAPACITY
+		),
+	)
+
+func _advance_tutorial_to_validate() -> void:
+	_tutorial_step = TutorialStep.VALIDATE
+	refresh_user_interface()
+	tutorial_coach_overlay.show_step(
+		button_validate,
+		"Seal the Block",
+		"Validators bundle a full pool into a block. You earn gas when you validate.",
+	)
+
+func _advance_tutorial_to_nodes_nav() -> void:
+	_tutorial_step = TutorialStep.NODES_NAV
+	refresh_user_interface()
+	tutorial_coach_overlay.show_step(
+		bottom_nav.get_tab_button(CyberConstants.TAB_NODES),
+		"View Your Chain",
+		"Open Nodes to see the block you just added to the network.",
+	)
+
+func _advance_tutorial_to_nodes_view() -> void:
+	_tutorial_step = TutorialStep.NODES_VIEW
+	refresh_user_interface()
+	tutorial_coach_overlay.show_step(
+		nodes_scroll,
+		"Your Blockchain",
+		"Each validated block is recorded here — a growing chain of network history.",
+		true,
+	)
+
+func _advance_tutorial_to_academy_nav() -> void:
+	_tutorial_step = TutorialStep.ACADEMY_NAV
+	refresh_user_interface()
+	tutorial_coach_overlay.show_step(
+		bottom_nav.get_tab_button(CyberConstants.TAB_ACADEMY),
+		"Learn the Network",
+		"Open Academy to study audits and crypto terms before you upgrade.",
+	)
+
+func _advance_tutorial_to_academy_audits() -> void:
+	_tutorial_step = TutorialStep.ACADEMY_AUDITS
+	_switch_academy_subtab(CyberConstants.ACADEMY_SUBTAB_AUDITS)
+	refresh_user_interface()
+	tutorial_coach_overlay.show_step(
+		audits_scroll,
+		"Certification Audits",
+		"Pass audits to unlock Market upgrades. Start with the Smart Contract assessment.",
+		true,
+	)
+
+func _advance_tutorial_to_academy_glossary_nav() -> void:
+	_tutorial_step = TutorialStep.ACADEMY_GLOSSARY_NAV
+	refresh_user_interface()
+	tutorial_coach_overlay.show_step(
+		academy_sub_nav.get_segment_button(CyberConstants.ACADEMY_SUBTAB_GLOSSARY),
+		"Glossary Tab",
+		"Tap Glossary to look up crypto terms whenever you need a refresher.",
+	)
+
+func _advance_tutorial_to_academy_glossary() -> void:
+	_tutorial_step = TutorialStep.ACADEMY_GLOSSARY
+	refresh_user_interface()
+	tutorial_coach_overlay.show_step(
+		glossary_scroll,
+		"Glossary",
+		"Browse definitions for gas, mempool, validator, and more.",
+		true,
+	)
+
+func _advance_tutorial_to_market_nav() -> void:
+	_tutorial_step = TutorialStep.MARKET_NAV
+	refresh_user_interface()
+	tutorial_coach_overlay.show_step(
+		bottom_nav.get_tab_button(CyberConstants.TAB_MARKET),
+		"Spend Your Gas",
+		"Open Market to buy upgrades that speed up your network.",
+	)
+
+func _advance_tutorial_to_market_upgrade() -> void:
+	_tutorial_step = TutorialStep.MARKET_UPGRADE
+	refresh_user_interface()
+	tutorial_coach_overlay.show_step(
+		card_contract,
+		"Network Upgrades",
+		"Pass an audit first, then spend earned gas here to boost mining speed.",
+		true,
+	)
+
+func _tutorial_allows_tab(tab_index: int) -> bool:
+	match _tutorial_step:
+		TutorialStep.NODES_NAV:
+			return tab_index == CyberConstants.TAB_NODES
+		TutorialStep.ACADEMY_NAV:
+			return tab_index == CyberConstants.TAB_ACADEMY
+		TutorialStep.MARKET_NAV:
+			return tab_index == CyberConstants.TAB_MARKET
+	return false
+
+func _apply_tutorial_nav_locks() -> void:
+	match _tutorial_step:
+		TutorialStep.NODES_NAV:
+			bottom_nav.set_tabs_blocked_except(CyberConstants.TAB_NODES)
+			academy_sub_nav.set_blocked(true)
+		TutorialStep.ACADEMY_NAV:
+			bottom_nav.set_tabs_blocked_except(CyberConstants.TAB_ACADEMY)
+			academy_sub_nav.set_blocked(true)
+		TutorialStep.MARKET_NAV:
+			bottom_nav.set_tabs_blocked_except(CyberConstants.TAB_MARKET)
+			academy_sub_nav.set_blocked(true)
+		TutorialStep.ACADEMY_GLOSSARY_NAV:
+			bottom_nav.set_blocked(true)
+			academy_sub_nav.set_segments_blocked_except(CyberConstants.ACADEMY_SUBTAB_GLOSSARY)
+		_:
+			bottom_nav.set_blocked(true)
+			academy_sub_nav.set_blocked(true)
+
+func _on_tutorial_tab_reached(tab_index: int) -> void:
+	match _tutorial_step:
+		TutorialStep.NODES_NAV:
+			if tab_index == CyberConstants.TAB_NODES:
+				_advance_tutorial_to_nodes_view()
+		TutorialStep.ACADEMY_NAV:
+			if tab_index == CyberConstants.TAB_ACADEMY:
+				_advance_tutorial_to_academy_audits()
+		TutorialStep.MARKET_NAV:
+			if tab_index == CyberConstants.TAB_MARKET:
+				_advance_tutorial_to_market_upgrade()
+
+func _on_tutorial_continued() -> void:
+	if not _tutorial_active:
+		return
+	match _tutorial_step:
+		TutorialStep.NODES_VIEW:
+			_advance_tutorial_to_academy_nav()
+		TutorialStep.ACADEMY_AUDITS:
+			_advance_tutorial_to_academy_glossary_nav()
+		TutorialStep.ACADEMY_GLOSSARY:
+			_advance_tutorial_to_market_nav()
+		TutorialStep.MARKET_UPGRADE:
+			_complete_tutorial()
+
+func _complete_tutorial() -> void:
+	tutorial_completed = true
+	_tutorial_active = false
+	tutorial_coach_overlay.hide_overlay()
+	refresh_user_interface()
+	save_game()
+
+func _on_tutorial_skipped() -> void:
+	_complete_tutorial()
