@@ -76,13 +76,5 @@ func highlight() -> void:
 	tween.tween_property(self, "modulate", orig, 0.35)
 
 func _apply_audit_button_style(enabled: bool) -> void:
-	var border := CyberConstants.MAGENTA if enabled else CyberConstants.TEXT_DIM
-	var box := CyberUI.flat_button(border)
-	audit_button.add_theme_stylebox_override("normal", box)
-	audit_button.add_theme_stylebox_override("hover", box)
-	audit_button.add_theme_stylebox_override("disabled", box)
-	audit_button.add_theme_color_override(
-		"font_color",
-		CyberConstants.MAGENTA if enabled else CyberConstants.TEXT_DIM
-	)
-	audit_button.add_theme_color_override("font_disabled_color", CyberConstants.TEXT_DIM)
+	var accent := CyberConstants.MAGENTA if enabled else CyberConstants.TEXT_DIM
+	CyberUI.apply_button_states(audit_button, accent, enabled)

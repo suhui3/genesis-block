@@ -111,21 +111,9 @@ func _on_lock_cta_pressed() -> void:
 		audit_pressed.emit(_tier)
 
 func _apply_lock_button_style() -> void:
-	var box := CyberUI.flat_button(CyberConstants.MAGENTA)
-	lock_cta_button.add_theme_stylebox_override("normal", box)
-	lock_cta_button.add_theme_stylebox_override("hover", box)
-	lock_cta_button.add_theme_stylebox_override("pressed", box)
-	lock_cta_button.add_theme_color_override("font_color", CyberConstants.MAGENTA)
+	CyberUI.apply_button_states(lock_cta_button, CyberConstants.MAGENTA)
 
 func _apply_upgrade_button_style(enabled: bool) -> void:
-	var border := CyberConstants.CYAN if enabled else CyberConstants.TEXT_DIM
-	var box := CyberUI.flat_button(border)
-	upgrade_button.add_theme_stylebox_override("normal", box)
-	upgrade_button.add_theme_stylebox_override("hover", box)
-	upgrade_button.add_theme_stylebox_override("disabled", box)
-	upgrade_button.add_theme_color_override(
-		"font_color",
-		CyberConstants.CYAN if enabled else CyberConstants.TEXT_DIM
-	)
-	upgrade_button.add_theme_color_override("font_disabled_color", CyberConstants.TEXT_DIM)
+	var accent := CyberConstants.CYAN if enabled else CyberConstants.TEXT_DIM
+	CyberUI.apply_button_states(upgrade_button, accent, enabled)
 	CyberUI.apply_button_font(upgrade_button, CyberConstants.BASE_FONT_CAPTION, true)

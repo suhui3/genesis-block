@@ -191,14 +191,8 @@ func _apply_gameplay_layout() -> void:
 	button_validate.custom_minimum_size = Vector2(0, mining_btn_h)
 
 func _style_mining_button(button: Button, primary: bool) -> void:
-	var border := CyberConstants.CYAN if primary else CyberConstants.MAGENTA
-	var box := CyberUI.flat_button(border)
-	button.add_theme_stylebox_override("normal", box)
-	button.add_theme_stylebox_override("hover", box)
-	button.add_theme_stylebox_override("pressed", box)
-	button.add_theme_stylebox_override("disabled", box)
-	button.add_theme_color_override("font_color", CyberConstants.TEXT_WHITE)
-	button.add_theme_color_override("font_disabled_color", CyberConstants.TEXT_DIM)
+	var accent := CyberConstants.CYAN if primary else CyberConstants.MAGENTA
+	CyberUI.apply_button_states(button, accent, true, CyberConstants.TEXT_WHITE)
 	CyberUI.apply_button_font(button, CyberConstants.BASE_FONT_SMALL, true)
 
 func _setup_quiz_styles() -> void:

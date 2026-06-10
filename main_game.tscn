@@ -9,6 +9,7 @@
 [ext_resource type="Texture2D" uid="uid://cw7wu1v6757ci" path="res://ui/textures/buttons/start_pressed.png" id="7_start_pressed"]
 [ext_resource type="PackedScene" path="res://ui/components/screen_header.tscn" id="8_header"]
 [ext_resource type="PackedScene" uid="uid://dvqon57djvkly" path="res://ui/components/gas_bar.tscn" id="9_gas"]
+[ext_resource type="Texture2D" uid="uid://nrsacqx1rbws" path="res://ui/textures/assets/mining.png" id="10_an1vu"]
 [ext_resource type="PackedScene" uid="uid://d0hxm7ya23nxl" path="res://ui/components/bottom_nav_bar.tscn" id="10_nav"]
 [ext_resource type="PackedScene" path="res://ui/components/assessment_card.tscn" id="11_assessment"]
 [ext_resource type="PackedScene" path="res://ui/components/market_upgrade_card.tscn" id="11_card"]
@@ -26,7 +27,6 @@ grow_vertical = 2
 script = ExtResource("1_1oj5k")
 
 [node name="SplashScreen" type="Control" parent="." unique_id=1039646154]
-visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -81,6 +81,7 @@ texture_pressed = ExtResource("7_start_pressed")
 texture_hover = ExtResource("6_start_normal")
 
 [node name="GameplayShell" type="Control" parent="." unique_id=1928607667]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -130,7 +131,6 @@ layout_mode = 2
 size_flags_vertical = 3
 
 [node name="NodesTab" type="VBoxContainer" parent="GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent" unique_id=1306269556]
-visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -213,6 +213,21 @@ horizontal_alignment = 1
 layout_mode = 2
 text = "Network Speed: 0 Gas/sec"
 horizontal_alignment = 1
+
+[node name="AvatarRow" type="CenterContainer" parent="GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MiningTab" unique_id=73067750]
+layout_mode = 2
+
+[node name="AvatarPanel" type="PanelContainer" parent="GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MiningTab/AvatarRow" unique_id=165323136]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+
+[node name="AvatarIcon" type="TextureRect" parent="GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MiningTab/AvatarRow/AvatarPanel" unique_id=1745814855]
+custom_minimum_size = Vector2(300, 300)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("10_an1vu")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="MarketTab" type="VBoxContainer" parent="GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent" unique_id=2077493327]
 visible = false
@@ -461,8 +476,8 @@ size_flags_horizontal = 3
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Crisis description."
-autowrap_mode = 3
 horizontal_alignment = 1
+autowrap_mode = 3
 
 [node name="OptionsVBox" type="VBoxContainer" parent="CrisisPanel/CrisisMargin/CrisisScroll/CrisisStack/CrisisBorder/CrisisVBox" unique_id=1982736461]
 layout_mode = 2

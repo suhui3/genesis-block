@@ -67,22 +67,7 @@ func _refresh_styles() -> void:
 		_style_segment(_buttons[i], i == _active_tab)
 
 func _style_segment(button: Button, active: bool) -> void:
-	var box := StyleBoxFlat.new()
-	if active:
-		box.bg_color = Color(0.55, 0.0, 0.45, 0.85)
-		box.border_color = CyberConstants.CYAN
-		box.set_border_width_all(2)
-	else:
-		box.bg_color = Color(0, 0, 0, 0)
-		box.border_color = Color(0, 0, 0, 0)
-	button.add_theme_stylebox_override("normal", box)
-	button.add_theme_stylebox_override("hover", box.duplicate())
-	button.add_theme_stylebox_override("pressed", box.duplicate())
-	button.add_theme_stylebox_override("disabled", box.duplicate())
-	button.add_theme_color_override(
-		"font_color",
-		CyberConstants.CYAN if active else CyberConstants.TEXT_WHITE,
-	)
+	CyberUI.apply_tab_button_states(button, active)
 	button.add_theme_color_override("font_disabled_color", CyberConstants.TEXT_DIM)
 
 func _on_segment_pressed(tab_index: int) -> void:

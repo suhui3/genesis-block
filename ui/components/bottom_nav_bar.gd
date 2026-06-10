@@ -27,6 +27,8 @@ func _build_tabs() -> void:
 		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn.custom_minimum_size = Vector2(0, CyberUI.touch_height(CyberConstants.BASE_NAV_BUTTON_HEIGHT))
 		btn.pressed.connect(_on_tab_pressed.bind(i))
+		btn.button_down.connect(_on_tab_press_state.bind(i, true))
+		btn.button_up.connect(_on_tab_press_state.bind(i, false))
 
 		var content := VBoxContainer.new()
 		content.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -73,31 +75,26 @@ func set_active_tab(tab_index: int) -> void:
 		_style_tab(_tab_entries[i], i == tab_index)
 
 func _style_tab(entry: Dictionary, active: bool) -> void:
-	var button: Button = entry.button
+	CyberUI.apply_tab_button_states(entry.button, active)
+	_apply_tab_content_colors(entry, active, false)
+
+func _apply_tab_content_colors(entry: Dictionary, active: bool, pressed: bool) -> void:
 	var icon: TextureRect = entry.icon
 	var label: Label = entry.label
 	var accent := CyberConstants.CYAN if active else CyberConstants.TEXT_WHITE
-
-	var normal := StyleBoxFlat.new()
-	var hover := StyleBoxFlat.new()
-	var pressed := StyleBoxFlat.new()
-	if active:
-		normal.bg_color = Color(0.55, 0.0, 0.45, 0.85)
-		normal.border_color = CyberConstants.CYAN
-		normal.set_border_width_all(2)
-	else:
-		normal.bg_color = Color(0, 0, 0, 0)
-		normal.border_color = Color(0, 0, 0, 0)
-	hover = normal.duplicate()
-	pressed = normal.duplicate()
-	button.add_theme_stylebox_override("normal", normal)
-	button.add_theme_stylebox_override("hover", hover)
-	button.add_theme_stylebox_override("pressed", pressed)
-
-	CyberUI.apply_title(label, accent, CyberConstants.BASE_FONT_TAB)
+	var color := CyberUI.pressed_text_color() if pressed else accent
+	CyberUI.apply_title(label, color, CyberConstants.BASE_FONT_TAB)
 	if icon.texture:
-		icon.modulate = accent
+		icon.modulate = color
 		icon.visible = true
+
+func _on_tab_press_state(tab_index: int, pressed: bool) -> void:
+	if tab_index < 0 or tab_index >= _tab_entries.size():
+		return
+	var entry: Dictionary = _tab_entries[tab_index]
+	if entry.button.disabled:
+		return
+	_apply_tab_content_colors(entry, tab_index == _active_tab, pressed)
 
 func _on_tab_pressed(tab_index: int) -> void:
 	set_active_tab(tab_index)

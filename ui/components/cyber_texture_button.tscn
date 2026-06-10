@@ -1,8 +1,8 @@
-[gd_scene format=3 uid="uid://cyber_texture_btn"]
+[gd_scene format=3 uid="uid://b6laeygfa5x47"]
 
-[ext_resource type="Script" path="res://ui/components/cyber_texture_button.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://b55i5rbw8iy8l" path="res://ui/components/cyber_texture_button.gd" id="1_script"]
 
-[node name="CyberTextureButton" type="TextureButton"]
+[node name="CyberTextureButton" type="TextureButton" unique_id=1871108686]
 custom_minimum_size = Vector2(360, 79)
 size_flags_horizontal = 4
 size_flags_vertical = 4
