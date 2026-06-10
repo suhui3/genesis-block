@@ -24,8 +24,8 @@ func _ready() -> void:
 	answer_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	hbox.alignment = BoxContainer.ALIGNMENT_CENTER
 
-func configure(index: int, text: String) -> void:
-	number_label.text = str(index + 1)
+func configure(index: int, text: String, badge: String = "") -> void:
+	number_label.text = badge if not badge.is_empty() else str(index + 1)
 	answer_label.text = text
 
 func _apply_style() -> void:

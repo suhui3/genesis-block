@@ -382,6 +382,116 @@ text = "[ Hint appears here if wrong ]"
 horizontal_alignment = 1
 autowrap_mode = 3
 
+[node name="CrisisPanel" type="Control" parent="." unique_id=1982736451]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CrisisBackground" type="ColorRect" parent="CrisisPanel" unique_id=1982736452]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.0392157, 0.054902, 0.101961, 0.96)
+
+[node name="CrisisMargin" type="MarginContainer" parent="CrisisPanel" unique_id=1982736471]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CrisisScroll" type="ScrollContainer" parent="CrisisPanel/CrisisMargin" unique_id=1982736472]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="CrisisStack" type="VBoxContainer" parent="CrisisPanel/CrisisMargin/CrisisScroll" unique_id=1982736473]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+
+[node name="TopSpacer" type="Control" parent="CrisisPanel/CrisisMargin/CrisisScroll/CrisisStack" unique_id=1982736474]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="CrisisBorder" type="PanelContainer" parent="CrisisPanel/CrisisMargin/CrisisScroll/CrisisStack" unique_id=1982736453]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CrisisVBox" type="VBoxContainer" parent="CrisisPanel/CrisisMargin/CrisisScroll/CrisisStack/CrisisBorder" unique_id=1982736454]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="TitleStack" type="VBoxContainer" parent="CrisisPanel/CrisisMargin/CrisisScroll/CrisisStack/CrisisBorder/CrisisVBox" unique_id=1982736455]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="TitleShadow" type="Label" parent="CrisisPanel/CrisisMargin/CrisisScroll/CrisisStack/CrisisBorder/CrisisVBox/TitleStack" unique_id=1982736456]
+layout_mode = 2
+text = "NETWORK CRISIS"
+horizontal_alignment = 1
+
+[node name="CrisisTitleLabel" type="Label" parent="CrisisPanel/CrisisMargin/CrisisScroll/CrisisStack/CrisisBorder/CrisisVBox/TitleStack" unique_id=1982736457]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "ORACLE FAILURE"
+horizontal_alignment = 1
+
+[node name="TitleUnderline" type="ColorRect" parent="CrisisPanel/CrisisMargin/CrisisScroll/CrisisStack/CrisisBorder/CrisisVBox/TitleStack" unique_id=1982736458]
+custom_minimum_size = Vector2(0, 2)
+layout_mode = 2
+
+[node name="DescPanel" type="PanelContainer" parent="CrisisPanel/CrisisMargin/CrisisScroll/CrisisStack/CrisisBorder/CrisisVBox" unique_id=1982736459]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CrisisDescLabel" type="Label" parent="CrisisPanel/CrisisMargin/CrisisScroll/CrisisStack/CrisisBorder/CrisisVBox/DescPanel" unique_id=1982736460]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Crisis description."
+autowrap_mode = 3
+horizontal_alignment = 1
+
+[node name="OptionsVBox" type="VBoxContainer" parent="CrisisPanel/CrisisMargin/CrisisScroll/CrisisStack/CrisisBorder/CrisisVBox" unique_id=1982736461]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="ButtonCrisisOptionA" parent="CrisisPanel/CrisisMargin/CrisisScroll/CrisisStack/CrisisBorder/CrisisVBox/OptionsVBox" unique_id=1982736462 instance=ExtResource("12_quiz_opt")]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ButtonCrisisOptionB" parent="CrisisPanel/CrisisMargin/CrisisScroll/CrisisStack/CrisisBorder/CrisisVBox/OptionsVBox" unique_id=1982736463 instance=ExtResource("12_quiz_opt")]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="EffectHintPanel" type="PanelContainer" parent="CrisisPanel/CrisisMargin/CrisisScroll/CrisisStack/CrisisBorder/CrisisVBox" unique_id=1982736464]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CrisisEffectHintLabel" type="Label" parent="CrisisPanel/CrisisMargin/CrisisScroll/CrisisStack/CrisisBorder/CrisisVBox/EffectHintPanel" unique_id=1982736465]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Choose a response to restore network stability."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="BottomSpacer" type="Control" parent="CrisisPanel/CrisisMargin/CrisisScroll/CrisisStack" unique_id=1982736475]
+layout_mode = 2
+size_flags_vertical = 3
+
 [connection signal="pressed" from="SplashScreen/ButtonStack/ButtonContinue" to="." method="_on_continue_button_pressed"]
 [connection signal="pressed" from="SplashScreen/ButtonStack/ButtonStart" to="." method="_on_start_button_pressed"]
 [connection signal="pressed" from="GameplayShell/RootVBox/ContentMargin/ChromeVBox/TabContent/MiningTab/MiningActions/WriteColumn/ButtonWrite" to="." method="_on_write_button_pressed"]
@@ -389,3 +499,5 @@ autowrap_mode = 3
 [connection signal="pressed" from="QuizPanel/QuizBorder/QuizVBox/OptionsVBox/ButtonQuizOption0" to="." method="_on_quiz_option_0_pressed"]
 [connection signal="pressed" from="QuizPanel/QuizBorder/QuizVBox/OptionsVBox/ButtonQuizOption1" to="." method="_on_quiz_option_1_pressed"]
 [connection signal="pressed" from="QuizPanel/QuizBorder/QuizVBox/OptionsVBox/ButtonQuizOption2" to="." method="_on_quiz_option_2_pressed"]
+[connection signal="pressed" from="CrisisPanel/CrisisMargin/CrisisScroll/CrisisStack/CrisisBorder/CrisisVBox/OptionsVBox/ButtonCrisisOptionA" to="." method="_on_crisis_option_a_pressed"]
+[connection signal="pressed" from="CrisisPanel/CrisisMargin/CrisisScroll/CrisisStack/CrisisBorder/CrisisVBox/OptionsVBox/ButtonCrisisOptionB" to="." method="_on_crisis_option_b_pressed"]
